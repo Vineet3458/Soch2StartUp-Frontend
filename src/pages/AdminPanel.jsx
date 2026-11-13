@@ -1,93 +1,98 @@
 import { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import api from "../api/axios.js";
+import { useSearchParams } from "react-router-dom";
+import api, { errMsg } from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import Loader from "../components/Loader.jsx";
-
-const ROLES = ["entrepreneur", "mentor", "industry_expert", "moderator", "admin", "superadmin"];
-const COLORS = { GO: "#16a34a", IMPROVE: "#d97706", AVOID: "#dc2626" };
+import AnalyticsModule from "../modules/analytics/AnalyticsModule.jsx";
+import UserManagementModule from "../modules/users/UserManagementModule.jsx";
+import IdeaListModule from "../modules/ideas/IdeaListModule.jsx";
+import ResourceHubModule from "../modules/resources/ResourceHubModule.jsx";
 
 export default function AdminPanel() {
   const { user: me } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") || "analytics";
+
   const [ideas, setIdeas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.get("/admin/stats"), api.get("/admin/users"), api.get("/admin/ideas")]).then(([s, u, i]) => {
-      setStats(s.data);
-      setUsers(u.data);
-      setIdeas(i.data);
-    });
+    api
+      .get("/admin/ideas")
+      .then((res) => setIdeas(res.data))
+      .catch((err) => console.error("Error loading admin ideas:", err))
+      .finally(() => setLoading(false));
   }, []);
 
-  const replaceUser = (updated) => setUsers(users.map((u) => (u._id === updated._id ? updated : u)));
-
-  const changeRole = async (id, role) => replaceUser((await api.patch(`/admin/users/${id}/role`, { role })).data);
-  const toggleActive = async (id) => replaceUser((await api.patch(`/admin/users/${id}/toggle`)).data);
-  const deleteIdea = async (id) => {
-    await api.delete(`/admin/ideas/${id}`);
-    setIdeas(ideas.filter((i) => i._id !== id));
+  const handleDeleteIdea = async (id) => {
+    if (!confirm("Are you sure you want to permanently delete this startup idea?")) return;
+    try {
+      await api.delete(`/admin/ideas/${id}`);
+      setIdeas((prev) => prev.filter((i) => i._id !== id));
+    } catch (err) {
+      alert(errMsg(err));
+    }
   };
 
-  if (!stats) return <Loader />;
+  if (loading) return <Loader />;
 
   return (
-    <>
-      <h2>Admin panel</h2>
-      <div className="grid grid-3">
-        <div className="card center"><p className="big-score">{stats.users}</p><p className="muted">Users</p></div>
-        <div className="card center"><p className="big-score">{stats.ideas}</p><p className="muted">Ideas validated</p></div>
-        <div className="card">
-          <ResponsiveContainer width="100%" height={130}>
-            <PieChart>
-              <Pie data={stats.verdicts} dataKey="count" nameKey="verdict" outerRadius={50}>
-                {stats.verdicts.map((v) => <Cell key={v.verdict} fill={COLORS[v.verdict]} />)}
-              </Pie>
-              <Tooltip /><Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+    <div className="admin-panel-module-root">
+      {/* Module Selector Sub-Navigation */}
+      <div className="admin-nav-tabs-bar" style={{ marginBottom: "24px" }}>
+        <button
+          type="button"
+          className={`filter-tab-pill ${tab === "analytics" || tab === "overview" ? "active" : ""}`}
+          onClick={() => setSearchParams({ tab: "analytics" })}
+        >
+          📊 Analytics &amp; Reports
+        </button>
+        <button
+          type="button"
+          className={`filter-tab-pill ${tab === "users" || tab === "roles" || tab === "pending" || tab === "blocked" ? "active" : ""}`}
+          onClick={() => setSearchParams({ tab: "users" })}
+        >
+          👥 User Directory &amp; Permissions
+        </button>
+        <button
+          type="button"
+          className={`filter-tab-pill ${tab === "ideas" || tab === "review" || tab === "approved" || tab === "rejected" || tab === "reports" ? "active" : ""}`}
+          onClick={() => setSearchParams({ tab: "ideas" })}
+        >
+          💡 Platform Startup Ideas ({ideas.length})
+        </button>
+        <button
+          type="button"
+          className={`filter-tab-pill ${tab === "guidelines" || tab === "announcements" || tab === "library" || tab === "templates" ? "active" : ""}`}
+          onClick={() => setSearchParams({ tab: "guidelines" })}
+        >
+          📚 Content &amp; Resource Hub
+        </button>
       </div>
 
-      <h3>Users</h3>
-      <div className="card table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th /></tr></thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u._id}>
-                <td>{u.name}</td>
-                <td>{u.email}</td>
-                <td>
-                  {me.role === "superadmin" ? (
-                    <select value={u.role} onChange={(e) => changeRole(u._id, e.target.value)}>
-                      {ROLES.map((r) => <option key={r} value={r}>{r.replace("_", " ")}</option>)}
-                    </select>
-                  ) : u.role.replace("_", " ")}
-                </td>
-                <td>{u.isActive ? "Active" : "Disabled"}</td>
-                <td>{u.role !== "superadmin" && <button className="btn btn-outline btn-sm" onClick={() => toggleActive(u._id)}>{u.isActive ? "Disable" : "Enable"}</button>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* 1. Analytics & Quality Insights Module */}
+      {(tab === "analytics" || tab === "overview") && (
+        <AnalyticsModule role={me.role} ideas={ideas} />
+      )}
 
-      <h3>All ideas</h3>
-      <div className="card table-wrap">
-        <table>
-          <thead><tr><th>Idea</th><th>Owner</th><th>Score</th><th>Verdict</th><th /></tr></thead>
-          <tbody>
-            {ideas.map((i) => (
-              <tr key={i._id}>
-                <td>{i.title}</td><td>{i.user?.name}</td><td>{i.report.score}</td><td>{i.report.verdict}</td>
-                <td><button className="btn btn-outline btn-sm" onClick={() => deleteIdea(i._id)}>Delete</button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
+      {/* 2. User & Directory Management Module */}
+      {(tab === "users" || tab === "roles" || tab === "pending" || tab === "blocked") && (
+        <UserManagementModule role={me.role} />
+      )}
+
+      {/* 3. Idea / Startup Table Module */}
+      {(tab === "ideas" || tab === "review" || tab === "approved" || tab === "rejected" || tab === "reports") && (
+        <IdeaListModule
+          ideas={ideas}
+          role={me.role}
+          onDelete={handleDeleteIdea}
+        />
+      )}
+
+      {/* 4. Knowledge & Resource Hub Module */}
+      {(tab === "guidelines" || tab === "announcements" || tab === "library" || tab === "templates") && (
+        <ResourceHubModule role={me.role} />
+      )}
+    </div>
   );
 }
