@@ -9,6 +9,17 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Auto-clear invalid token on 401 response
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Helper to read a readable error message
 export const errMsg = (err) => err.response?.data?.message || "Something went wrong";
 
