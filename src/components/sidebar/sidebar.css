@@ -1,0 +1,541 @@
+/* ==========================================================================
+   ROLE-BASED SIDEBAR SYSTEM
+   Common Module Styles matching visual specification
+   ========================================================================== */
+
+.app-sidebar-container {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, #0C1021 0%, #080B17 100%);
+  border-right: 1px solid rgba(139, 92, 246, 0.18);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  box-sizing: border-box;
+  color: #94A3B8;
+  user-select: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+/* 1. Brand Logo Header */
+.sidebar-brand-header {
+  padding: 4px 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 10px;
+}
+
+.sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.sidebar-brand-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.sidebar-brand-text {
+  font-size: 17px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-brand-text span {
+  color: #8B5CF6;
+}
+
+/* Role Selector Pill */
+.sidebar-role-selector-bar {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.sidebar-role-selector-btn {
+  width: 100%;
+  background: rgba(109, 40, 217, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+  color: #DDD6FE;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.sidebar-role-selector-btn:hover {
+  background: rgba(109, 40, 217, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #FFFFFF;
+}
+
+.role-selector-indicator {
+  color: #10B981;
+  font-size: 10px;
+}
+
+.role-selector-text {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-role-dropdown-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #11162B;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  padding: 8px;
+  margin-top: 4px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fadeUp 0.15s ease;
+}
+
+.role-dropdown-title {
+  font-size: 10.5px;
+  color: #64748B;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 6px;
+}
+
+.role-dropdown-option {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #CBD5E1;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.role-dropdown-option strong {
+  font-size: 12px;
+  color: #FFFFFF;
+}
+
+.role-dropdown-option small {
+  font-size: 10.5px;
+  color: #94A3B8;
+}
+
+.role-dropdown-option:hover {
+  background: rgba(109, 40, 217, 0.25);
+  color: #FFFFFF;
+}
+
+.role-dropdown-option.selected {
+  background: rgba(109, 40, 217, 0.4);
+  border-left: 2px solid #8B5CF6;
+}
+
+/* 2. Top Primary Item (Dashboard) */
+.sidebar-top-primary-wrap {
+  margin-bottom: 12px;
+}
+
+.sidebar-item-primary {
+  background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.4);
+  padding: 10px 14px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-item-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(109, 40, 217, 0.5);
+  color: #FFFFFF !important;
+}
+
+/* 3. Scrollable Role Menu */
+.sidebar-scrollable-menu-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.sidebar-scrollable-menu-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-scrollable-menu-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Sidebar Item Base */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #94A3B8;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+}
+
+.sidebar-item.active {
+  background: rgba(109, 40, 217, 0.22);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.sidebar-item-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.sidebar-item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-item-badge {
+  background: #7C3AED;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  line-height: 1.4;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);
+}
+
+/* Expandable Groups */
+.sidebar-group {
+  margin-bottom: 2px;
+}
+
+.sidebar-group-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: #94A3B8;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.sidebar-group-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+}
+
+.sidebar-group-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-group-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-group-chevron {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+  color: #64748B;
+}
+
+.sidebar-group-chevron.expanded {
+  transform: rotate(0deg);
+}
+
+.sidebar-group.collapsed .sidebar-group-chevron {
+  transform: rotate(-90deg);
+}
+
+.sidebar-group-children {
+  position: relative;
+  display: flex;
+  margin-left: 18px;
+  padding-left: 10px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.sidebar-sub-tree-line {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.sidebar-sub-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.sidebar-sub-item {
+  padding: 6px 10px;
+  font-size: 12.5px;
+  color: #64748B;
+}
+
+.sidebar-sub-item:hover {
+  color: #DDD6FE;
+  background: rgba(109, 40, 217, 0.1);
+}
+
+.sidebar-sub-item.active {
+  color: #FFFFFF;
+  background: rgba(109, 40, 217, 0.2);
+  font-weight: 600;
+}
+
+.sidebar-subitem-bullet {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* 4. Bottom Fixed Section */
+.sidebar-bottom-fixed-section {
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-divider-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin-bottom: 4px;
+}
+
+.sidebar-common-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 5. Role Identity Card */
+.sidebar-role-card {
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.25) 0%, rgba(139, 92, 246, 0.12) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.role-card-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.4);
+}
+
+.role-card-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.role-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.role-card-subtitle {
+  font-size: 11px;
+  color: #C4B5FD;
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dashboard Filter Tabs */
+.dashboard-filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-tab-pill {
+  display: inline-block;
+  padding: 7px 18px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  color: #64748B;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.filter-tab-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.filter-tab-pill.active {
+  background: var(--primary);
+  color: #FFFFFF !important;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.3);
+}
+
+/* Notification List Component */
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #FAF8FF;
+  border: 1px solid #EDE9FE;
+}
+
+.notification-item div {
+  flex: 1;
+}
+
+.notif-badge {
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #EDE9FE;
+  border-radius: 8px;
+}
+
+/* Layout with Sidebar for Dashboard & Authenticated Pages */
+.dashboard-layout-container {
+  display: flex;
+  min-height: 100vh;
+  background: #FAFAFD;
+}
+
+.dashboard-main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 30px 36px 60px;
+  overflow-y: auto;
+}
+
+.dashboard-content-pane {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .app-sidebar-container {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    height: 100vh;
+    transition: left 0.3s ease;
+    z-index: 100;
+  }
+
+  .app-sidebar-container.mobile-open {
+    left: 0;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .dashboard-main-content {
+    padding: 20px 16px 40px;
+  }
+}
