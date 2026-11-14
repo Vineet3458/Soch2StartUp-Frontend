@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test test-admin-modules.test.mjs test-superadmin-modules.test.mjs test-admin-logic.test.mjs test-mentor-modules.test.mjs"
   },
   "dependencies": {
     "axios": "^1.7.7",

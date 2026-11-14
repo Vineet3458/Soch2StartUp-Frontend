@@ -1,0 +1,458 @@
+/* ==========================================================================
+   MENTOR ROLE DESIGN SYSTEM - 100% SPEC MATCH WITH REFERENCE PDF
+   Screenshots 1-11 from Soch2Startup_Mentor_Module_Visuals.pdf
+   ========================================================================== */
+
+.mentor-module-root {
+  width: 100%;
+  animation: mentorFadeIn 0.2s ease-in-out;
+  padding: 8px 4px 40px 4px;
+}
+
+@keyframes mentorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 1. Header Bar with Breadcrumb and Action Icons */
+.mentor-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mentor-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.mentor-breadcrumb .breadcrumb-portal {
+  color: #64748b;
+}
+
+.mentor-breadcrumb .breadcrumb-sep {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.mentor-breadcrumb .breadcrumb-current {
+  color: #334155;
+  font-weight: 600;
+}
+
+.mentor-header-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mentor-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.mentor-icon-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Page Title & Subtitle */
+.mentor-title-block {
+  margin-bottom: 24px;
+}
+
+.mentor-page-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0 0 6px 0;
+}
+
+.mentor-page-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Subtabs for Grouped Views (Schedule Session vs Session History, Resources Suite) */
+.mentor-subnav-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.mentor-subnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mentor-subnav-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.mentor-subnav-btn.active {
+  color: #4f46e5;
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+/* 2. Top 4 Metric Cards Grid */
+.mentor-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .mentor-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .mentor-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mentor-metric-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-width: 0;
+}
+
+.mentor-metric-card:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.mentor-metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.mentor-metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.mentor-metric-sub {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #16a34a;
+  line-height: 1.3;
+}
+
+/* 3. Main Card Container */
+.mentor-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.mentor-card-header {
+  padding: 22px 24px 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mentor-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.mentor-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mentor-search-input {
+  padding: 7px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  min-width: 200px;
+  transition: border-color 0.15s ease;
+}
+
+.mentor-search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.mentor-filter-select {
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #334155;
+  background: #ffffff;
+  cursor: pointer;
+  outline: none;
+}
+
+.mentor-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mentor-btn-primary:hover {
+  background: #4338ca;
+}
+
+/* 4. Table Styles */
+.mentor-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mentor-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.mentor-table thead tr {
+  background: #f8fafc;
+}
+
+.mentor-table th {
+  padding: 12px 24px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mentor-table td {
+  padding: 18px 24px;
+  font-size: 13.5px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.mentor-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.mentor-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.mentor-cell-primary {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Purple text / actions matching PDF */
+.mentor-text-purple {
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.mentor-action-link {
+  color: #4f46e5;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13.5px;
+  transition: color 0.15s ease;
+}
+
+.mentor-action-link:hover {
+  color: #3730a3;
+  text-decoration: underline;
+}
+
+/* Progress bar for In Progress module */
+.mentor-progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mentor-progress-track {
+  width: 120px;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.mentor-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.mentor-progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  min-width: 36px;
+}
+
+/* Priority Pills */
+.mentor-priority-pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mentor-priority-high {
+  color: #ef4444;
+}
+
+.mentor-priority-medium {
+  color: #f59e0b;
+}
+
+.mentor-priority-low {
+  color: #64748b;
+}
+
+/* Rating Stars */
+.mentor-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.mentor-rating-star {
+  color: #f59e0b;
+  font-size: 14px;
+}
+
+/* Modal styling for details */
+.mentor-modal-body {
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mentor-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mentor-modal-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.mentor-modal-value {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.mentor-modal-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #0f172a;
+  outline: none;
+  resize: vertical;
+}
+
+.mentor-modal-textarea:focus {
+  border-color: #6366f1;
+}
+
+.mentor-empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: #64748b;
+}

@@ -102,6 +102,26 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/superadmin"
+        element={
+          <ProtectedRoute roles={["admin", "superadmin"]}>
+            <DashboardLayout>
+              <AdminPanel />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/mentor"
+        element={
+          <ProtectedRoute roles={["mentor", "admin", "superadmin"]}>
+            <DashboardLayout>
+              <Dashboard />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
 
       {/* 4. Catch-all: Redirect unknown routes to home */}
       <Route path="*" element={<Navigate to="/" replace />} />

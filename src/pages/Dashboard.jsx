@@ -1,11 +1,36 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import api, { errMsg } from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import Loader from "../components/Loader.jsx";
 import { Modal } from "../components/common/index.jsx";
 
-// 7 Consolidated Common Modules
+// 6 Dedicated Independent Role Dashboard Modules
+import {
+  EntrepreneurDashboard,
+  AdminDashboard,
+  SuperadminDashboard,
+  MentorDashboard,
+  EvaluatorDashboard,
+  ModeratorDashboard,
+} from "../modules/dashboards/index.js";
+
+// 11 Dedicated Mentor Role Modules matching UI Screenshots
+import {
+  MyAssignmentsTab,
+  InProgressTab,
+  CompletedTab,
+  ArchivedTab,
+  ScheduleSessionTab,
+  SessionHistoryTab,
+  ProvideGuidanceTab,
+  MyFeedbackTab,
+  KnowledgeBaseTab,
+  TemplatesTab,
+  BestPracticesTab,
+} from "../modules/mentor/index.js";
+
+// 7 Consolidated Common React Modules
 import IdeaListModule from "../modules/ideas/IdeaListModule.jsx";
 import ValidationReportModule from "../modules/reports/ValidationReportModule.jsx";
 import FeedbackModule from "../modules/feedback/FeedbackModule.jsx";
@@ -18,10 +43,16 @@ import AccountShellModule from "../modules/account/AccountShellModule.jsx";
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  const tab = searchParams.get("tab") || "all";
+  const tab = searchParams.get("tab");
   const view = searchParams.get("view");
+  const roleParam = searchParams.get("role");
+  const isMentorPath = location.pathname.startsWith("/mentor");
+
+  // Effective role: checks URL role param, /mentor route, or falls back to authenticated role
+  const effectiveRole = roleParam || (isMentorPath ? "mentor" : null) || user?.role || "entrepreneur";
 
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,65 +104,258 @@ export default function Dashboard() {
 
   if (loading) return <Loader />;
 
-  // ROUTE TO MODULE 7: Account Utilities (Notifications, Profile, Settings)
+  // 1. ROUTE TO MODULE 7: Account Utilities (Notifications, Profile, Settings)
   if (view === "notifications" || view === "profile" || view === "settings") {
     return <AccountShellModule defaultView={view} />;
   }
 
-  // ROUTE TO MODULE 5: Analytics & Quality Insights
-  if (view === "market" || view === "analytics" || tab === "analytics" || tab === "quality") {
-    return <AnalyticsModule role={user.role} ideas={ideas} />;
+  // MENTOR ROLE MODULE ROUTING (100% Matches 11 UI Screens in Reference PDF)
+  if (effectiveRole === "mentor") {
+    const roleQuery = roleParam ? `&role=${roleParam}` : (isMentorPath ? "&role=mentor" : "");
+    const switchTab = (nextTab) => {
+      navigate(`/dashboard?tab=${nextTab}${roleQuery}`);
+    };
+
+    if (tab === "assignments" || tab === "my-assignments" || (tab === "all" && !view)) {
+      return <MyAssignmentsTab />;
+    }
+    if (tab === "in-progress" || tab === "progress") {
+      return <InProgressTab />;
+    }
+    if (tab === "completed") {
+      return <CompletedTab />;
+    }
+    if (tab === "archived") {
+      return <ArchivedTab />;
+    }
+    if (tab === "schedule" || tab === "schedule-session" || tab === "sessions") {
+      return <ScheduleSessionTab onSwitchTab={switchTab} />;
+    }
+    if (tab === "history" || tab === "session-history") {
+      return <SessionHistoryTab onSwitchTab={switchTab} />;
+    }
+    if (tab === "guidance" || tab === "provide-guidance" || tab === "submitted") {
+      return <ProvideGuidanceTab />;
+    }
+    if (tab === "my-feedback" || tab === "feedback") {
+      return <MyFeedbackTab />;
+    }
+    if (tab === "templates" || view === "templates") {
+      return <TemplatesTab onSwitchTab={switchTab} />;
+    }
+    if (tab === "best-practices" || view === "best-practices" || view === "playbooks") {
+      return <BestPracticesTab onSwitchTab={switchTab} />;
+    }
+    if (
+      tab === "knowledge" ||
+      tab === "knowledge-base" ||
+      view === "knowledge" ||
+      view === "saved"
+    ) {
+      return <KnowledgeBaseTab onSwitchTab={switchTab} />;
+    }
   }
 
-  // ROUTE TO MODULE 6: Knowledge & Resource Hub
+  // 2. ROUTE TO MODULE 5: Analytics & Quality Insights
+  if (view === "market" || view === "analytics" || tab === "analytics" || tab === "quality") {
+    return <AnalyticsModule role={effectiveRole} ideas={ideas} />;
+  }
+
+  // 3. ROUTE TO MODULE 6: Knowledge & Resource Hub
   if (
     view === "saved" ||
     view === "plan" ||
     view === "roadmap" ||
-    tab.includes("resource") ||
-    tab.includes("template") ||
-    tab.includes("knowledge") ||
-    tab.includes("guidelines") ||
-    tab.includes("best-practices")
+    view === "guidelines" ||
+    (tab && (
+      tab.includes("resource") ||
+      tab.includes("template") ||
+      tab.includes("knowledge") ||
+      tab.includes("guidelines") ||
+      tab.includes("best-practices")
+    ))
   ) {
-    return <ResourceHubModule role={user.role} />;
+    return <ResourceHubModule role={effectiveRole} />;
   }
 
-  // ROUTE TO MODULE 2: Validation Report & Scorecard (if view is reports)
-  if (view === "reports" && ideas.length > 0) {
+  // 4. ROUTE TO MODULE 2: Validation Report & Scorecard
+  if (view === "reports") {
+    const targetIdea = ideas.length > 0 ? ideas[0] : null;
     return (
-      <div>
-        <div className="row-between no-print" style={{ marginBottom: "20px" }}>
+      <div className="fv-subview-wrapper">
+        <div className="fv-subview-header">
           <div>
-            <h2>Startup Validation Reports</h2>
-            <p className="muted small">Comprehensive AI scorecard &amp; SWOT analysis</p>
+            <h2 className="fv-subview-title">Startup Validation Reports</h2>
+            <p className="fv-subview-subtitle">Comprehensive AI scorecard &amp; SWOT analysis</p>
           </div>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => navigate("/dashboard")}>
-            ← Back to Startup Table
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => navigate("/dashboard")}
+          >
+            ← Back to Overview
           </button>
         </div>
-        <ValidationReportModule idea={ideas[0]} />
+        {targetIdea ? (
+          <ValidationReportModule idea={targetIdea} />
+        ) : (
+          <div className="card center" style={{ padding: "40px" }}>
+            <p className="muted">No validated ideas submitted yet.</p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ marginTop: "12px" }}
+              onClick={() => navigate("/validate")}
+            >
+              + Submit Idea for Validation
+            </button>
+          </div>
+        )}
       </div>
     );
   }
 
-  // ROUTE TO MODULE 4: User Directory (if Admin/Superadmin on users tab)
-  if (tab === "users" && ["admin", "superadmin", "moderator"].includes(user.role)) {
-    return <UserManagementModule role={user.role} />;
+  // 5. ROUTE TO MODULE 4: User Directory (if Admin/Superadmin/Moderator on users tab)
+  if (tab === "users" && ["admin", "superadmin", "moderator"].includes(effectiveRole)) {
+    return (
+      <div className="fv-subview-wrapper">
+        <div className="fv-subview-header">
+          <div>
+            <h2 className="fv-subview-title">User &amp; Directory Management</h2>
+            <p className="fv-subview-subtitle">Platform accounts, roles, and status control</p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => navigate("/dashboard")}
+          >
+            ← Back to Overview
+          </button>
+        </div>
+        <UserManagementModule role={effectiveRole} />
+      </div>
+    );
   }
 
-  // DEFAULT: MODULE 1: Idea / Startup Table
-  return (
-    <div>
-      <IdeaListModule
-        ideas={ideas}
-        role={user.role}
-        initialTab={tab}
-        onDelete={handleDeleteIdea}
-        onEvaluate={(idea) => setEvaluatingIdea(idea)}
-      />
+  // 6. ROUTE TO MODULE 1: Idea / Startup Table (if explicitly requested via view or specific tab)
+  const isSpecificTab = Boolean(tab && tab !== "all");
+  const isTableView = view === "ideas-table" || searchParams.get("view") === "table" || isSpecificTab;
 
-      {/* Shared Evaluation Modal for Mentors & Evaluators */}
+  if (isTableView) {
+    return (
+      <div className="fv-subview-wrapper">
+        <div className="fv-subview-header">
+          <div>
+            <h2 className="fv-subview-title">Startup Ideas &amp; Submissions</h2>
+            <p className="fv-subview-subtitle">Review, track and filter startup pipelines</p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => navigate("/dashboard")}
+          >
+            ← Back to Overview
+          </button>
+        </div>
+
+        <IdeaListModule
+          ideas={ideas}
+          role={effectiveRole}
+          initialTab={tab || "all"}
+          onDelete={handleDeleteIdea}
+          onEvaluate={(idea) => setEvaluatingIdea(idea)}
+        />
+
+        {/* Shared Evaluation Modal for Mentors & Evaluators */}
+        {evaluatingIdea && (
+          <Modal
+            isOpen={Boolean(evaluatingIdea)}
+            onClose={() => setEvaluatingIdea(null)}
+            title={`Evaluate Startup: ${evaluatingIdea.title}`}
+            maxWidth={620}
+          >
+            <div style={{ marginBottom: "16px" }}>
+              <span className="industry-pill">{evaluatingIdea.industry}</span>
+              <p className="muted small" style={{ marginTop: "6px" }}>
+                {evaluatingIdea.description}
+              </p>
+            </div>
+
+            <EvaluationForm
+              role={effectiveRole}
+              loading={evalSubmitting}
+              onSubmit={handleSubmitEvaluation}
+            />
+          </Modal>
+        )}
+      </div>
+    );
+  }
+
+  // 7. DEFAULT: ROLE-BASED DEDICATED DASHBOARD MODULE
+  const renderRoleDashboard = () => {
+    switch (effectiveRole) {
+      case "admin":
+        return (
+          <AdminDashboard
+            ideas={ideas}
+            onViewAll={() => navigate("/admin?tab=ideas")}
+          />
+        );
+
+      case "superadmin":
+        return (
+          <SuperadminDashboard
+            ideas={ideas}
+            onViewAll={() => navigate("/admin?tab=overview")}
+          />
+        );
+
+      case "mentor": {
+        const mentorRoleQuery = roleParam ? `&role=${roleParam}` : (isMentorPath ? "&role=mentor" : "");
+        return (
+          <MentorDashboard
+            ideas={ideas}
+            onViewAll={() => navigate(`/dashboard?tab=assignments${mentorRoleQuery}`)}
+            onEvaluate={(idea) => setEvaluatingIdea(idea)}
+          />
+        );
+      }
+
+      case "industry_expert":
+      case "evaluator":
+        return (
+          <EvaluatorDashboard
+            ideas={ideas}
+            onViewAll={() => navigate("/dashboard?tab=submitted")}
+            onEvaluate={(idea) => setEvaluatingIdea(idea)}
+          />
+        );
+
+      case "moderator":
+        return (
+          <ModeratorDashboard
+            ideas={ideas}
+            onViewAll={() => navigate("/dashboard?tab=flagged")}
+          />
+        );
+
+      case "entrepreneur":
+      default:
+        return (
+          <EntrepreneurDashboard
+            ideas={ideas}
+            onViewAll={() => navigate("/dashboard?tab=all")}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className="dashboard-content-pane">
+      {renderRoleDashboard()}
+
+      {/* Shared Evaluation Modal if triggered from role dashboards */}
       {evaluatingIdea && (
         <Modal
           isOpen={Boolean(evaluatingIdea)}
@@ -147,7 +371,7 @@ export default function Dashboard() {
           </div>
 
           <EvaluationForm
-            role={user.role}
+            role={effectiveRole}
             loading={evalSubmitting}
             onSubmit={handleSubmitEvaluation}
           />

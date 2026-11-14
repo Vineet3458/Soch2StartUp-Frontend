@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { SidebarIcon } from "./sidebarIcons.jsx";
 import SidebarItem from "./SidebarItem.jsx";
 
@@ -9,7 +10,19 @@ export default function SidebarGroup({
   defaultExpanded = true,
   onItemClick,
 }) {
-  const [isOpen, setIsOpen] = useState(defaultExpanded);
+  const location = useLocation();
+  const currentUrl = location.pathname + location.search;
+  const hasActiveChild = children.some(
+    (child) => child.path === currentUrl || (child.path && currentUrl.startsWith(child.path) && location.search)
+  );
+
+  const [isOpen, setIsOpen] = useState(defaultExpanded || hasActiveChild);
+
+  useEffect(() => {
+    if (hasActiveChild) {
+      setIsOpen(true);
+    }
+  }, [hasActiveChild]);
 
   const toggleGroup = () => {
     setIsOpen(!isOpen);

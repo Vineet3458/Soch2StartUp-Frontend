@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { getSidebarConfig, ALL_ROLES } from "./sidebarConfig.js";
 import SidebarItem from "./SidebarItem.jsx";
@@ -10,21 +10,33 @@ import "./sidebar.css";
 export default function Sidebar({ roleOverride = null, onNavigate = null }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get("role");
 
-  // Selected role: either explicit override, user's authenticated role, or default "entrepreneur"
-  const currentRole = roleOverride || user?.role || "entrepreneur";
+  const isOnAdmin = location.pathname.startsWith("/admin") || location.pathname.startsWith("/superadmin");
+  const fallbackRole = isOnAdmin
+    ? user?.role === "superadmin" || location.pathname.startsWith("/superadmin")
+      ? "superadmin"
+      : "admin"
+    : user?.role || "entrepreneur";
+  const currentRole = roleOverride || roleParam || fallbackRole;
   const [activeRole, setActiveRole] = useState(currentRole);
   const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
 
-  // Synchronize activeRole whenever authenticated user role updates
   useEffect(() => {
-    if (user?.role && !roleOverride) {
+    if (roleParam) {
+      setActiveRole(roleParam);
+    } else if (roleOverride) {
+      setActiveRole(roleOverride);
+    } else if (user?.role) {
       setActiveRole(user.role);
+    } else if (isOnAdmin) {
+      setActiveRole(location.pathname.startsWith("/superadmin") ? "superadmin" : "admin");
     }
-  }, [user?.role, roleOverride]);
+  }, [roleParam, user?.role, roleOverride, isOnAdmin, location.pathname]);
 
-  // Determine effective role configuration
-  const effectiveRole = roleOverride || activeRole;
+  const effectiveRole = roleOverride || roleParam || activeRole;
   const config = getSidebarConfig(effectiveRole);
 
   const handleLogout = () => {
@@ -36,26 +48,69 @@ export default function Sidebar({ roleOverride = null, onNavigate = null }) {
     if (onNavigate) onNavigate();
   };
 
+  const resolveItemPath = (path) => {
+    if (!path) return path;
+    let target = path;
+
+    // If currently on /superadmin route, preserve /superadmin as the base path
+    if (location.pathname.startsWith("/superadmin") && target.startsWith("/admin")) {
+      target = target.replace(/^\/admin/, "/superadmin");
+    }
+
+    // Preserve roleParam if present in current URL
+    if (roleParam && !target.includes("role=")) {
+      const sep = target.includes("?") ? "&" : "?";
+      return `${target}${sep}role=${roleParam}`;
+    }
+
+    // If viewing superadmin console, maintain role=superadmin across tab clicks
+    if (
+      effectiveRole === "superadmin" &&
+      target.startsWith("/admin") &&
+      !target.includes("role=") &&
+      user?.role !== "superadmin"
+    ) {
+      const sep = target.includes("?") ? "&" : "?";
+      return `${target}${sep}role=superadmin`;
+    }
+
+    return target;
+  };
+
   return (
-    <aside className="app-sidebar-container">
-      {/* 1. BRAND LOGO HEADER */}
+    <aside className="app-sidebar-container cosmic-sidebar">
+      {/* 1. BRAND LOGO HEADER WITH FOUNDERVERSE TAGLINE */}
       <div className="sidebar-brand-header">
-        <Link to="/" className="sidebar-brand-link">
+        <Link to="/" className="sidebar-brand-link" title="Soch2Startup Home">
           <img
-            src="/assets/nav-logo-hd.png"
-            alt="Soch2Startup"
+            src="/assets/founderverse/s-mark-retina.png"
+            alt="Soch2Startup Logo"
             className="sidebar-brand-logo"
             onError={(e) => {
               e.currentTarget.style.display = "none";
+              const fb = e.currentTarget.nextElementSibling;
+              if (fb) fb.style.display = "flex";
             }}
           />
-          <span className="sidebar-brand-text">
-            Soch<span>2</span>Startup
-          </span>
+          <div className="sidebar-brand-logo-fallback" style={{ display: "none" }}>
+            <span>S</span>
+          </div>
+          <div className="sidebar-brand-text-group">
+            <span className="sidebar-brand-text">
+              Soch<span>2</span>Startup
+            </span>
+            <span className="sidebar-brand-tagline">
+              {effectiveRole === "superadmin"
+                ? "SUPERADMIN CONSOLE"
+                : effectiveRole === "admin"
+                ? "ADMIN WORKSPACE"
+                : "Idea → Validate → Build → Grow"}
+            </span>
+          </div>
         </Link>
       </div>
 
-      {/* Role Switcher Pill (Preview / Switch between roles seamlessly) */}
+      {/* Role Switcher Pill */}
       <div className="sidebar-role-selector-bar">
         <button
           type="button"
@@ -81,6 +136,13 @@ export default function Sidebar({ roleOverride = null, onNavigate = null }) {
                 onClick={() => {
                   setActiveRole(r.key);
                   setShowRoleSwitcher(false);
+                  if (r.key === "superadmin") {
+                    navigate("/admin?role=superadmin&tab=overview");
+                  } else if (r.key === "admin") {
+                    navigate("/admin?role=admin&tab=analytics");
+                  } else {
+                    navigate(`/dashboard?role=${r.key}`);
+                  }
                 }}
               >
                 <strong>{r.label}</strong>
@@ -91,45 +153,91 @@ export default function Sidebar({ roleOverride = null, onNavigate = null }) {
         )}
       </div>
 
-      {/* 2. TOP PRIMARY NAVIGATION (DASHBOARD) */}
-      <div className="sidebar-top-primary-wrap">
-        <SidebarItem
-          label="Dashboard"
-          icon="home"
-          path="/dashboard"
-          isPrimary={true}
-          onClick={handleItemClick}
-        />
-      </div>
+      {/* 2. OVERVIEW SECTION (DASHBOARD) - Hidden for Superadmin as CONTROL CENTER -> System Overview is primary */}
+      {effectiveRole !== "superadmin" && (
+        <div className="sidebar-section-block">
+          <span className="sidebar-section-label">OVERVIEW</span>
+          <SidebarItem
+            label="Dashboard"
+            icon="home"
+            path={
+              effectiveRole === "admin"
+                ? "/admin?tab=analytics"
+                : roleParam
+                ? `/dashboard?role=${roleParam}`
+                : "/dashboard"
+            }
+            isPrimary={false}
+            onClick={handleItemClick}
+          />
+        </div>
+      )}
 
-      {/* 3. SCROLLABLE ROLE-SPECIFIC MENU */}
+      {/* 3. SCROLLABLE CATEGORIZED ROLE MENU */}
       <div className="sidebar-scrollable-menu-area">
         <nav className="sidebar-nav-list">
-          {config.menu.map((item) => {
-            if (item.isGroup) {
+          {config.sections ? (
+            config.sections.map((sec, sIdx) => (
+              <div key={sIdx} className="sidebar-section-block">
+                <span className="sidebar-section-label">{sec.title}</span>
+                {sec.items.map((item) => {
+                  if (item.isGroup) {
+                    return (
+                      <SidebarGroup
+                        key={item.id}
+                        label={item.label}
+                        icon={item.icon}
+                        children={item.children?.map((c) => ({
+                          ...c,
+                          path: resolveItemPath(c.path),
+                        }))}
+                        defaultExpanded={item.defaultExpanded ?? true}
+                        onItemClick={handleItemClick}
+                      />
+                    );
+                  }
+                  return (
+                    <SidebarItem
+                      key={item.id}
+                      label={item.label}
+                      icon={item.icon}
+                      path={resolveItemPath(item.path)}
+                      badge={item.badge}
+                      onClick={handleItemClick}
+                    />
+                  );
+                })}
+              </div>
+            ))
+          ) : (
+            config.menu.map((item) => {
+              if (item.isGroup) {
+                return (
+                  <SidebarGroup
+                    key={item.id}
+                    label={item.label}
+                    icon={item.icon}
+                    children={item.children?.map((c) => ({
+                      ...c,
+                      path: resolveItemPath(c.path),
+                    }))}
+                    defaultExpanded={item.defaultExpanded ?? true}
+                    onItemClick={handleItemClick}
+                  />
+                );
+              }
               return (
-                <SidebarGroup
+                <SidebarItem
                   key={item.id}
                   label={item.label}
                   icon={item.icon}
-                  children={item.children}
-                  defaultExpanded={item.defaultExpanded ?? true}
-                  onItemClick={handleItemClick}
+                  path={resolveItemPath(item.path)}
+                  badge={item.badge}
+                  onClick={handleItemClick}
                 />
               );
-            }
-
-            return (
-              <SidebarItem
-                key={item.id}
-                label={item.label}
-                icon={item.icon}
-                path={item.path}
-                badge={item.badge}
-                onClick={handleItemClick}
-              />
-            );
-          })}
+            })
+          )}
         </nav>
       </div>
 
@@ -138,6 +246,14 @@ export default function Sidebar({ roleOverride = null, onNavigate = null }) {
         <div className="sidebar-divider-line" />
 
         <div className="sidebar-common-menu">
+          {effectiveRole !== "superadmin" && (
+            <SidebarItem
+              label="Settings"
+              icon="settings"
+              path="/dashboard?view=settings"
+              onClick={handleItemClick}
+            />
+          )}
           <SidebarItem
             label="Notifications"
             icon="bell"
@@ -152,28 +268,36 @@ export default function Sidebar({ roleOverride = null, onNavigate = null }) {
             onClick={handleItemClick}
           />
           <SidebarItem
-            label="Settings"
-            icon="settings"
-            path="/dashboard?view=settings"
-            onClick={handleItemClick}
-          />
-          <SidebarItem
             label="Logout"
             icon="logout"
             onClick={handleLogout}
           />
         </div>
 
-        {/* 5. ROLE IDENTITY CARD */}
-        <div className="sidebar-role-card">
-          <div className="role-card-icon-wrap">
-            <SidebarIcon name={config.roleCard.icon} size={20} color="#FFFFFF" />
+        {/* 5. ROLE IDENTITY CARD - Hidden for Superadmin matching UI screenshots */}
+        {effectiveRole !== "superadmin" && (
+          <div className="sidebar-role-card">
+            <div className="role-card-icon-wrap">
+              <SidebarIcon name={config.roleCard.icon} size={20} color="#FFFFFF" />
+            </div>
+            <div className="role-card-info">
+              <h4 className="role-card-title">{config.roleCard.title}</h4>
+              <p className="role-card-subtitle">{config.roleCard.subtitle}</p>
+            </div>
           </div>
-          <div className="role-card-info">
-            <h4 className="role-card-title">{config.roleCard.title}</h4>
-            <p className="role-card-subtitle">{config.roleCard.subtitle}</p>
-          </div>
-        </div>
+        )}
+      </div>
+
+      {/* 6. SUBTLE PLANET HORIZON WATERMARK (From Image 3) */}
+      <div className="sidebar-planet-watermark" aria-hidden="true">
+        <img
+          src="/assets/founderverse/sidebar-planet.png"
+          alt=""
+          className="sidebar-planet-img"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
       </div>
     </aside>
   );

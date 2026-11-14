@@ -1,18 +1,32 @@
+@import "./founderverse.css";
+@import "./mentor.css";
+
 /* ==========================================================================
-   Soch2Startup – Global Styles & Design System
+   Soch2Startup – Global Styles & Design System (FOUNDERVERSE)
    Matches Figma / Visual Specification:
-   - Primary: #6D28D9
-   - Secondary: #8B5CF6
-   - Dark / Text: #0F172A
-   - Light BG: #EDE9FE
+   - Cosmic Navy: #090D25
+   - Deep Navy: #11152F
+   - Nebula Purple: #6528D7
+   - Electric Violet: #A855F7
+   - Orbit Cyan: #06B6D4
+   - Starlight: #F5F3FF
    - White: #FFFFFF
    - Typography: Inter
    ========================================================================== */
 
 :root {
-  --primary: #6D28D9;
-  --primary-hover: #5B21B6;
-  --secondary: #8B5CF6;
+  /* FOUNDERVERSE Primary Tokens */
+  --fv-cosmic-navy: #090D25;
+  --fv-deep-navy: #11152F;
+  --fv-nebula-purple: #6528D7;
+  --fv-electric-violet: #A855F7;
+  --fv-orbit-cyan: #06B6D4;
+  --fv-starlight: #F5F3FF;
+  --fv-white: #FFFFFF;
+
+  --primary: #6528D7;
+  --primary-hover: #521BB7;
+  --secondary: #A855F7;
   --dark: #0F172A;
   --text: #0F172A;
   --muted: #64748B;

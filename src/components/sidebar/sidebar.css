@@ -10,8 +10,8 @@
   height: 100vh;
   position: sticky;
   top: 0;
-  background: linear-gradient(180deg, #0C1021 0%, #080B17 100%);
-  border-right: 1px solid rgba(139, 92, 246, 0.18);
+  background: linear-gradient(180deg, #090D25 0%, #11152F 100%);
+  border-right: 1px solid rgba(101, 40, 215, 0.2);
   display: flex;
   flex-direction: column;
   padding: 16px 12px;
@@ -20,12 +20,13 @@
   user-select: none;
   z-index: 50;
   overflow: hidden;
+  position: relative;
 }
 
 /* 1. Brand Logo Header */
 .sidebar-brand-header {
-  padding: 4px 8px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 4px 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 10px;
 }
 
@@ -34,23 +35,59 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  min-width: 0;
 }
 
 .sidebar-brand-logo {
-  height: 28px;
+  height: 32px;
   width: auto;
+  max-width: 28px;
   object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.sidebar-brand-logo-fallback {
+  width: 28px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6528D7 0%, #A855F7 100%);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .sidebar-brand-text {
-  font-size: 17px;
+  font-size: 16.5px;
   font-weight: 800;
   color: #FFFFFF;
   letter-spacing: -0.02em;
+  line-height: 1.15;
+  white-space: nowrap;
 }
 
 .sidebar-brand-text span {
-  color: #8B5CF6;
+  color: #A855F7;
+}
+
+.sidebar-brand-tagline {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: #C4B5FD;
+  opacity: 0.85;
+  letter-spacing: 0.015em;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 
 /* Role Selector Pill */
@@ -160,15 +197,29 @@
 
 /* 2. Top Primary Item (Dashboard) */
 .sidebar-top-primary-wrap {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+
+.sidebar-section-block {
+  margin-bottom: 8px;
+}
+
+.sidebar-section-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748B;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 10px 4px;
 }
 
 .sidebar-item-primary {
-  background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%) !important;
+  background: linear-gradient(135deg, #6528D7 0%, #A855F7 100%) !important;
   color: #FFFFFF !important;
   font-weight: 600 !important;
   border-radius: 10px !important;
-  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.4);
+  box-shadow: 0 4px 16px rgba(101, 40, 215, 0.45);
   padding: 10px 14px !important;
   display: flex;
   align-items: center;
@@ -178,7 +229,7 @@
 
 .sidebar-item-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(109, 40, 217, 0.5);
+  box-shadow: 0 6px 20px rgba(101, 40, 215, 0.55);
   color: #FFFFFF !important;
 }
 
@@ -232,9 +283,10 @@
 }
 
 .sidebar-item.active {
-  background: rgba(109, 40, 217, 0.22);
+  background: #7C3AED;
   color: #FFFFFF;
   font-weight: 600;
+  border-radius: 10px;
 }
 
 .sidebar-item-icon-wrap {
@@ -354,8 +406,14 @@
 
 .sidebar-sub-item.active {
   color: #FFFFFF;
-  background: rgba(109, 40, 217, 0.2);
+  background: #7C3AED;
   font-weight: 600;
+  border-radius: 10px;
+}
+
+.sidebar-sub-item.active .sidebar-subitem-bullet {
+  background: #FFFFFF;
+  opacity: 1;
 }
 
 .sidebar-subitem-bullet {
@@ -373,6 +431,27 @@
   flex-direction: column;
   gap: 8px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* 6. Subtle Planet Horizon Watermark (Image 3) */
+.sidebar-planet-watermark {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  line-height: 0;
+  opacity: 0.95;
+}
+
+.sidebar-planet-img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .sidebar-divider-line {

@@ -1,0 +1,11 @@
+export { default as SystemOverviewTab } from "./tabs/SystemOverviewTab.jsx";
+export { default as PlatformSettingsTab } from "./tabs/PlatformSettingsTab.jsx";
+export { default as FeatureManagementTab } from "./tabs/FeatureManagementTab.jsx";
+export { default as SystemLogsTab } from "./tabs/SystemLogsTab.jsx";
+export { default as AuditActivityTab } from "./tabs/AuditActivityTab.jsx";
+export { default as RolesPermissionsTab } from "./tabs/RolesPermissionsTab.jsx";
+export { default as IdeaCategoriesTab } from "./tabs/IdeaCategoriesTab.jsx";
+export { default as ValidationEngineTab } from "./tabs/ValidationEngineTab.jsx";
+export { default as ScoringConfigurationTab } from "./tabs/ScoringConfigurationTab.jsx";
+export { default as IntegrationsTab } from "./tabs/IntegrationsTab.jsx";
+export { default as AnalyticsReportsTab } from "./tabs/AnalyticsReportsTab.jsx";

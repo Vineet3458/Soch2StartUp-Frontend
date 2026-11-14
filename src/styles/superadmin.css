@@ -1,0 +1,380 @@
+/* ==========================================================================
+   SUPERADMIN WORKSPACE DESIGN SYSTEM - 100% SPEC & SCREENSHOT MATCH
+   Matches all 11 reference UI screenshots for Soch2Startup Superadmin Console
+   ========================================================================== */
+
+.superadmin-module-root {
+  width: 100%;
+  animation: saFadeIn 0.2s ease-in-out;
+}
+
+@keyframes saFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 2-Column Responsive Layout */
+.superadmin-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+.superadmin-layout-grid > * {
+  min-width: 0;
+}
+
+@media (max-width: 1120px) {
+  .superadmin-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Main Card */
+.superadmin-main-card {
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03);
+}
+
+.superadmin-card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.superadmin-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+
+.superadmin-card-subtitle {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Solid Purple Export Button */
+.superadmin-export-btn {
+  background: #6320ee;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 7px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(99, 32, 238, 0.25);
+  font-family: inherit;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.superadmin-export-btn:hover {
+  background: #5218c8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 32, 238, 0.35);
+}
+
+/* SuperAdmin Table */
+.superadmin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+
+.superadmin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.superadmin-table thead tr {
+  background: #f1f3fd;
+}
+
+.superadmin-table thead th:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.superadmin-table thead th:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.superadmin-table th {
+  padding: 12px 18px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+}
+
+.superadmin-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.superadmin-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.superadmin-table td {
+  padding: 15px 18px;
+  font-size: 13.5px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.superadmin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* SuperAdmin Solid Pill Badges */
+.sa-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 20px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  width: fit-content;
+  min-width: 86px;
+  text-align: center;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s ease, filter 0.12s ease;
+  user-select: none;
+}
+
+.sa-badge-interactive {
+  cursor: pointer;
+}
+
+.sa-badge-interactive:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.sa-badge-interactive:active {
+  transform: translateY(0);
+}
+
+.superadmin-control-item .sa-badge {
+  min-width: 104px;
+}
+
+.sa-badge-green {
+  background: #10b981;
+}
+
+.sa-badge-cyan {
+  background: #06b6d4;
+}
+
+.sa-badge-orange {
+  background: #f59e0b;
+}
+
+.sa-badge-red {
+  background: #ef4444;
+}
+
+.sa-badge-purple {
+  background: #7c3aed;
+}
+
+/* Toast notification for actions */
+.superadmin-toast-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  animation: saFadeIn 0.2s ease-out;
+}
+
+.superadmin-toast-banner .toast-icon {
+  color: #10b981;
+  font-size: 16px;
+}
+
+/* Right Side Column */
+.superadmin-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.superadmin-side-card {
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 18px;
+  padding: 24px 26px;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03);
+}
+
+.superadmin-side-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+
+.superadmin-side-card-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 22px 0;
+}
+
+/* Side Card Control Items */
+.superadmin-control-item {
+  margin-bottom: 22px;
+}
+
+.superadmin-control-item:last-child {
+  margin-bottom: 0;
+}
+
+.superadmin-control-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+
+.superadmin-control-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* Service Status Rows (Screenshot 01) */
+.superadmin-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.superadmin-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.superadmin-status-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+/* Recent Platform Events (Screenshot 01) */
+.superadmin-events-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.superadmin-event-item {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.superadmin-event-item::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1;
+  top: 1px;
+}
+
+/* Export Options List (Screenshot 11) */
+.superadmin-export-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.superadmin-export-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.superadmin-export-option-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.superadmin-export-option-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.superadmin-export-link-btn {
+  background: none;
+  border: none;
+  color: #6320ee;
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.superadmin-export-link-btn:hover {
+  text-decoration: underline;
+  color: #4f14cb;
+}
