@@ -28,11 +28,11 @@ function Market() {
             <Stat icon={TrendingUp} label="Hottest industry (30d)" value={d.trending[0]?.name || "—"} tone="orange" sub={d.trending[0] ? `${d.trending[0].count} new ideas` : ""} />
           </div>
           <div className="grid g2">
-            <Card title="Average score by industry"><Bars data={d.industries} bars={[{ key: "avgScore", name: "Avg score", color: "#8b5cf6" }, { key: "goRate", name: "GO rate %", color: "#22d3ee" }]} max={100} /></Card>
-            <Card title="Score distribution"><Donut data={d.distribution.map((x) => ({ name: x.label, value: x.count }))} colors={["#fb7185", "#fbbf24", "#60a5fa", "#34d399"]} /><Legend items={d.distribution.map((x) => ({ name: x.label, value: x.count }))} /></Card>
+            <Card title="Average score by industry"><Bars data={d.industries} bars={[{ key: "avgScore", name: "Avg score", color: "var(--primary)" }, { key: "goRate", name: "GO rate %", color: "var(--accent)" }]} max={100} /></Card>
+            <Card title="Score distribution"><Donut data={d.distribution.map((x) => ({ name: x.label, value: x.count }))} colors={["var(--danger)", "var(--warning)", "var(--info)", "var(--success)"]} /><Legend items={d.distribution.map((x) => ({ name: x.label, value: x.count }))} /></Card>
           </div>
           <div className="grid g2">
-            <Card title={idea ? `${idea.title} vs platform average` : "Strength profile"}>{idea ? <RadarMetrics series={[{ name: "Your idea", metrics: idea.report.metrics, color: "#8b5cf6" }, { name: "Platform avg", metrics: Object.fromEntries(d.metricAverages.map((x) => [x.key, x.value])), color: "#22d3ee" }]} /> : <p className="muted">Validate an idea to compare.</p>}</Card>
+            <Card title={idea ? `${idea.title} vs platform average` : "Strength profile"}>{idea ? <RadarMetrics series={[{ name: "Your idea", metrics: idea.report.metrics, color: "var(--primary)" }, { name: "Platform avg", metrics: Object.fromEntries(d.metricAverages.map((x) => [x.key, x.value])), color: "var(--accent)" }]} /> : <p className="muted">Validate an idea to compare.</p>}</Card>
             <Card title="Market research for your idea">{idea ? <><Badge kind="primary">{idea.industry}</Badge><p className="muted pre mt-s">{idea.report.marketResearch}</p><hr className="divider" /><div className="label">Target customers</div><div className="row wrap gap-s mt-s">{idea.report.targetCustomers.map((c) => <span key={c} className="chip">{c}</span>)}</div></> : <NoIdeas />}</Card>
           </div>
         </div>)}</Async>
@@ -58,7 +58,7 @@ function Competitors() {
             </Card>
             <Card title="Most mentioned across your ideas"><div className="row wrap">{Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([n, c]) => <span key={n} className="chip">{n} <b>×{c}</b></span>)}</div></Card>
           </div>
-          <Card title="Most common competitors platform-wide"><Async q={m}>{(d) => <Bars layout="vertical" data={d.topCompetitors} bars={[{ key: "count", name: "Mentions", color: "#ec4899" }]} height={Math.max(180, d.topCompetitors.length * 38)} />}</Async></Card>
+          <Card title="Most common competitors platform-wide"><Async q={m}>{(d) => <Bars layout="vertical" data={d.topCompetitors} bars={[{ key: "count", name: "Mentions", color: "var(--primary)" }]} height={Math.max(180, d.topCompetitors.length * 38)} />}</Async></Card>
         </div>)}</Async>
     </>
   );

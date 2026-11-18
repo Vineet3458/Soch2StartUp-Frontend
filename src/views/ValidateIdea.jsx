@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Loader2, Save, Sparkles } from "lucide-react";
 import api, { errMsg } from "../api/client.js";
 import { useConfig } from "../context/ConfigContext.jsx";
-import { invalidate } from "../lib/live.js";
+import { invalidate, useLive } from "../lib/live.js";
 import { toast } from "../lib/toast.js";
 import { Alert, Button, Card, Field, PageHeader } from "../components/ui.jsx";
 
@@ -25,10 +25,17 @@ export default function ValidateIdea() {
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   useEffect(() => { if (!form.industry && cats.length) setForm((f) => ({ ...f, industry: cats[0].name })); }, [cats.length]);
+  const editLive = useLive(editId ? `/ideas/${editId}` : null);
+  const loadedIdRef = useRef(null);
   useEffect(() => {
-    if (!editId) return;
-    api.get(`/ideas/${editId}`).then((r) => { const i = r.data; setForm({ title: i.title, description: i.description, industry: i.industry, budget: i.budget, teamSize: i.teamSize }); }).catch((e) => setError(errMsg(e)));
-  }, [editId]);
+    if (editLive.data && loadedIdRef.current !== editId) {
+      loadedIdRef.current = editId;
+      const i = editLive.data;
+      setForm({ title: i.title, description: i.description, industry: i.industry, budget: i.budget, teamSize: i.teamSize });
+    } else if (editLive.error) {
+      setError(errMsg(editLive.error));
+    }
+  }, [editLive.data, editLive.error, editId]);
   useEffect(() => { if (busy !== "submit") return; const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 1100); return () => clearInterval(t); }, [busy]);
 
   const save = async (asDraft) => {
@@ -49,7 +56,7 @@ export default function ValidateIdea() {
   if (busy === "submit") return (
     <div className="center" style={{ padding: "70px 0" }}>
       <div className="ai-orb" style={{ margin: "0 auto 36px" }} />
-      <h2>Analysing <span className="grad-text">{form.title || "your idea"}</span></h2>
+      <h2>Analysing {form.title || "your idea"}</h2>
       <p className="muted" style={{ margin: "8px 0 26px" }}>Our engine is evaluating demand, competition, feasibility, finances and risk.</p>
       <ul className="step-list col" style={{ listStyle: "none", padding: 0, maxWidth: 360, margin: "0 auto", textAlign: "left", gap: 10 }}>
         {STEPS.map((s, i) => <li key={s} className={i <= step ? "on" : ""}><span className="row" style={{ gap: 10 }}>{i < step ? <CheckCircle2 size={18} color="var(--success)" /> : i === step ? <Loader2 size={18} className="spin" color="var(--primary)" /> : <i style={{ width: 18 }} />}{s}</span></li>)}

@@ -15,7 +15,7 @@ const TOPICS = [
   ["/stats", ALL], ["/system", ALL], ["/ideas", ["ideas", "assignments", "feedback", "sessions", "requests", "reports"]],
   ["/assignments", ["assignments", "ideas"]], ["/feedback", ["feedback", "ideas", "assignments"]], ["/sessions", ["sessions", "ideas"]],
   ["/users", ["users", "assignments", "ideas"]], ["/requests", ["requests", "ideas", "users"]], ["/reports", ["reports", "ideas", "feedback", "users"]],
-  ["/resources", ["resources"]], ["/logs", ["logs"]], ["/config", ["config"]], ["/notifications", ["notifications"]],
+  ["/resources", ["resources"]], ["/logs", ["logs"]], ["/config", ["config", "ideas", "users"]], ["/notifications", ["notifications"]],
 ];
 const topicsFor = (path) => (TOPICS.find(([p]) => path.startsWith(p)) || [null, [path.split("/")[1]]])[1];
 

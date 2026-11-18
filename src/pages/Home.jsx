@@ -29,7 +29,7 @@ export default function Home() {
         <div className="container hero-grid">
           <div>
             <span className="eyebrow stagger"><Sparkles size={14} color="var(--primary)" /> AI-powered startup validation platform</span>
-            <h1>Turn your <span className="grad-text">startup idea</span> into a scalable business</h1>
+            <h1>Turn your startup idea into a scalable business</h1>
             <p className="lead">{platform.tagline}. Validate with AI, get evaluated by industry experts and guided by mentors — in one live, collaborative workspace.</p>
             <div className="row wrap" style={{ marginTop: 30, gap: 14 }}>
               <Link to={user ? "/app" : "/register"} className="btn btn-lg">{user ? "Open dashboard" : "Validate my idea"} <ArrowRight size={18} /></Link>
@@ -63,30 +63,30 @@ export default function Home() {
       <div className="marquee"><div className="marquee-in">{[...cats, ...cats, ...cats, ...cats].map((c, i) => <span key={i}><Lightbulb size={16} color={c.color || "var(--primary)"} />{c.name}</span>)}</div></div>
 
       <section className="section" id="features"><div className="container">
-        <Reveal className="section-head"><span className="eyebrow">Features</span><h2>Everything you need to <span className="grad-text">validate & grow</span></h2><p>From a rough idea to an investor-ready plan — structured, measurable and collaborative.</p></Reveal>
-        <div className="grid g3">{FEATURES.map(([I, t, d, g], i) => <Reveal key={t} delay={i * 70}><Tilt className={`card feature g-${g}`}><div className="ico"><I size={26} /></div><h3>{t}</h3><p>{d}</p></Tilt></Reveal>)}</div>
+        <Reveal className="section-head"><span className="eyebrow">Features</span><h2>Everything you need to validate & grow</h2><p>From a rough idea to an investor-ready plan — structured, measurable and collaborative.</p></Reveal>
+        <div className="grid g3 card-group">{FEATURES.map(([I, t, d, g], i) => <Reveal key={t} delay={i * 70}><Tilt className={`card feature g-${g}`}><div className="ico"><I size={26} /></div><h3>{t}</h3><p>{d}</p></Tilt></Reveal>)}</div>
       </div></section>
 
       <section className="section" id="how" style={{ background: "var(--surface)", borderBlock: "1px solid var(--border)" }}><div className="container">
-        <Reveal className="section-head"><span className="eyebrow">How it works</span><h2>From idea to insight in <span className="grad-text">three steps</span></h2></Reveal>
+        <Reveal className="section-head"><span className="eyebrow">How it works</span><h2>From idea to insight in three steps</h2></Reveal>
         <div className="grid g3">{STEPS.map(([t, d], i) => <Reveal key={t} delay={i * 120} className="step"><div className="n">{i + 1}</div><h3 style={{ marginBottom: 8 }}>{t}</h3><p className="muted">{d}</p></Reveal>)}</div>
       </div></section>
 
       <section className="section" id="stats"><div className="container">
-        <Reveal className="section-head"><span className="eyebrow"><Radio size={13} color="var(--success)" /> Live from the platform</span><h2>Real numbers, <span className="grad-text">updated in real time</span></h2></Reveal>
-        <div className="grid g4">
+        <Reveal className="section-head"><span className="eyebrow"><Radio size={13} color="var(--success)" /> Live from the platform</span><h2>Real numbers, updated in real time</h2></Reveal>
+        <div className="grid g4 card-group">
           {[["Founders & professionals", stats?.users, Users], ["Ideas validated", stats?.ideas, Lightbulb], ["Verified mentors & experts", stats?.mentors, GraduationCap], ["Average idea score", stats?.avgScore, Target]].map(([l, v, I], i) => (
-            <Reveal key={l} delay={i * 80}><div className="card big-stat"><I size={26} color="var(--primary)" /><div className="v grad-text" style={{ marginTop: 10 }}>{v == null ? "—" : <CountUp value={v} />}</div><div className="l">{l}</div></div></Reveal>))}
+            <Reveal key={l} delay={i * 80}><div className="card big-stat"><I size={26} color="var(--primary)" /><div className="v" style={{ marginTop: 10 }}>{v == null ? "—" : <CountUp value={v} />}</div><div className="l">{l}</div></div></Reveal>))}
         </div>
       </div></section>
 
       <section className="section" id="roles" style={{ paddingTop: 20 }}><div className="container">
-        <Reveal className="section-head"><span className="eyebrow">Built for everyone</span><h2>One platform, <span className="grad-text">six workspaces</span></h2></Reveal>
-        <div className="grid g3">{ROLES.map(([I, t, d], i) => <Reveal key={t} delay={i * 60}><div className="card hover row" style={{ alignItems: "flex-start", gap: 16 }}><div className="stat" style={{ padding: 0 }}><div className="ico g-purple" style={{ width: 46, height: 46 }}><I size={22} /></div></div><div><h3 style={{ fontSize: 17 }}>{t}</h3><p className="muted small" style={{ marginTop: 4 }}>{d}</p></div></div></Reveal>)}</div>
+        <Reveal className="section-head"><span className="eyebrow">Built for everyone</span><h2>One platform, six workspaces</h2></Reveal>
+        <div className="grid g3 card-group">{ROLES.map(([I, t, d], i) => <Reveal key={t} delay={i * 60}><div className="card hover row" style={{ alignItems: "flex-start", gap: 16 }}><div className="stat" style={{ padding: 0 }}><div className="ico g-purple" style={{ width: 46, height: 46 }}><I size={22} /></div></div><div><h3 style={{ fontSize: 17 }}>{t}</h3><p className="muted small" style={{ marginTop: 4 }}>{d}</p></div></div></Reveal>)}</div>
       </div></section>
 
       <section className="section" style={{ paddingTop: 0 }}><div className="container">
-        <Reveal><div className="cta-box"><h2 style={{ fontSize: "clamp(28px,4vw,44px)" }}>Ready to test your <span className="grad-text">big idea</span>?</h2><p className="muted" style={{ margin: "14px auto 28px", maxWidth: 520, fontSize: 17 }}>Join {platform.name} and get an AI-powered validation report in under a minute.</p><Link to={user ? "/app/validate" : "/register"} className="btn btn-lg">Get started free <ArrowRight size={18} /></Link></div></Reveal>
+        <Reveal><div className="cta-box"><h2 style={{ fontSize: "clamp(28px,4vw,44px)" }}>Ready to test your big idea?</h2><p className="muted" style={{ margin: "14px auto 28px", maxWidth: 520, fontSize: 17 }}>Join {platform.name} and get an AI-powered validation report in under a minute.</p><Link to={user ? "/app/validate" : "/register"} className="btn btn-lg">Get started free <ArrowRight size={18} /></Link></div></Reveal>
       </div></section>
 
       <footer className="footer"><div className="container row between" style={{ flexWrap: "wrap" }}><div className="row"><BrandMark size={28} /><BrandName name={platform.name} /></div><span>© {new Date().getFullYear()} {platform.name}. Built as a Final Year Project.</span>{platform.supportEmail && <a href={`mailto:${platform.supportEmail}`}>{platform.supportEmail}</a>}</div></footer>

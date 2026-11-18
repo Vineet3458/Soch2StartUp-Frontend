@@ -9,7 +9,7 @@ import { AdminDashboard } from "./AnalyticsView.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
 
 const greet = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; };
-const Hello = ({ sub, children }) => { const { user } = useAuth(); return <PageHeader title={<>{greet()}, <span className="grad-text">{user.name.split(" ")[0]}</span> 👋</>} subtitle={sub}>{children}</PageHeader>; };
+const Hello = ({ sub, children }) => { const { user } = useAuth(); return <PageHeader title={<>{greet()}, {user.name.split(" ")[0]}</>} subtitle={sub}>{children}</PageHeader>; };
 
 export default function Overview() {
   const { user } = useAuth();
@@ -58,7 +58,7 @@ function Founder() {
             <Stat icon={MessageSquare} label="Feedback received" value={ideas.reduce((s, i) => s + (i.feedbackCount || 0), 0)} tone="pink" />
           </div>
           <div className="grid g-main">
-            <Card title="Score by idea" icon={TrendingUp}>{trend.length ? <Bars data={trend.map((t) => ({ name: t.date, Score: t.count }))} bars={[{ key: "Score", name: "AI score", color: "#8b5cf6" }]} max={100} height={240} /> : <Empty icon={Lightbulb} title="No scores yet">Validate an idea to see your trend.</Empty>}</Card>
+            <Card title="Score by idea" icon={TrendingUp}>{trend.length ? <Bars data={trend.map((t) => ({ name: t.date, Score: t.count }))} bars={[{ key: "Score", name: "AI score", color: "var(--primary)" }]} max={100} height={240} /> : <Empty icon={Lightbulb} title="No scores yet">Validate an idea to see your trend.</Empty>}</Card>
             <div className="col">
               <Card title="Next mentoring session" icon={Calendar}>{next ? <div><b>{next.title}</b><div className="small muted mt-s">{fmtDateTime(next.scheduledAt)} · {next.durationMin} min</div><div className="small muted">with {next.mentor?.name}</div>{next.link && <a href={next.link} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-s">Join</a>}</div> : <p className="muted small">Nothing scheduled. Request a mentor from an idea page.</p>}</Card>
               <Activity_ limit={4} />
@@ -93,7 +93,7 @@ function SystemOverview() {
             <Stat icon={ShieldAlert} label="Errors (24h)" value={d.errors24h} tone={d.errors24h ? "orange" : "green"} sub={`${d.memoryMb} MB memory · ${d.node}`} />
           </div>
           <div className="grid g-main">
-            <Card title="API requests per minute" icon={Activity}>{d.perMinute.length ? <AreaTrend data={d.perMinute.map((p) => ({ date: new Date(p.t).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }), count: p.count }))} fmtX={(v) => v} name="Requests" color="#22d3ee" /> : <p className="muted">Collecting data…</p>}</Card>
+            <Card title="API requests per minute" icon={Activity}>{d.perMinute.length ? <AreaTrend data={d.perMinute.map((p) => ({ date: new Date(p.t).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }), count: p.count }))} fmtX={(v) => v} name="Requests" color="var(--accent)" /> : <p className="muted">Collecting data…</p>}</Card>
             <Card title="Recent system events" icon={Clock} sub={<Link to="/app/logs">All logs</Link>}>{d.recent.length ? <div className="list">{d.recent.map((l) => <div className="list-item" key={l._id}><Badge kind={l.level === "error" ? "danger" : l.level === "warn" ? "warning" : "info"}>{l.level}</Badge><div className="grow small"><code>{l.action}</code><div className="tiny faint truncate">{l.message}</div></div><span className="tiny faint">{ago(l.createdAt)}</span></div>)}</div> : <p className="muted small">No events yet.</p>}</Card>
           </div>
           <div className="grid g3">{[["Platform settings", "/app/platform", Gauge], ["Feature management", "/app/features", Zap], ["Scoring configuration", "/app/scoring", Target]].map(([l, to, I]) => <Link key={to} to={to} className="card hover row" style={{ color: "var(--text)" }}><I size={20} color="var(--primary)" /><b className="grow">{l}</b>→</Link>)}</div>
@@ -154,7 +154,7 @@ function ExpertHome() {
             <Card title="Evaluation queue" icon={Award} sub={<Link to="/app/evaluations">View all</Link>}>{!todo.length ? <Empty icon={CheckCircle2} title="You're all caught up" /> : <div className="list">{todo.slice(0, 5).map((x) => <div key={x._id} className="list-item"><div className="grow"><b>{x.idea.title}</b><div className="tiny faint">{x.idea.industry} · AI score {x.idea.report?.score ?? "—"}</div></div>{x.reEval && <Badge kind="warning">re-eval</Badge>}<Button size="sm" onClick={() => nav(`/app/evaluate?idea=${x.idea._id}`)}>Evaluate</Button></div>)}</div>}</Card>
             <Activity_ limit={5} />
           </div>
-          {evals.length > 0 && <Card title="Your scores vs AI" icon={Cpu}><Bars data={evals.map((e) => ({ name: e.idea.title.slice(0, 12), Expert: e.score, AI: e.idea.report?.score || 0 }))} bars={[{ key: "Expert", name: "Expert", color: "#8b5cf6" }, { key: "AI", name: "AI", color: "#22d3ee" }]} max={100} /></Card>}
+          {evals.length > 0 && <Card title="Your scores vs AI" icon={Cpu}><Bars data={evals.map((e) => ({ name: e.idea.title.slice(0, 12), Expert: e.score, AI: e.idea.report?.score || 0 }))} bars={[{ key: "Expert", name: "Expert", color: "var(--primary)" }, { key: "AI", name: "AI", color: "var(--accent)" }]} max={100} /></Card>}
         </div>)}</Async>
     </>
   );

@@ -92,7 +92,7 @@ function Scorecards() {
       <PageHeader title="Scorecards" subtitle="Every evaluation you have submitted, compared against the AI score." />
       <Async q={q}>{() => !rows.length ? <Empty icon={Gauge} title="No scorecards yet" /> : (
         <div className="col gap-l">
-          <Card title="Your average scoring profile"><RadarMetrics height={260} series={[{ name: "Average (x/100)", metrics: { marketDemand: avg.market, competition: avg.innovation, feasibility: avg.execution, financial: avg.scalability, risk: avg.team }, color: "#22d3ee" }]} /><p className="tiny faint center">Axes mapped: Market, Innovation, Execution, Scalability, Team</p></Card>
+          <Card title="Your average scoring profile"><RadarMetrics height={260} series={[{ name: "Average (x/100)", metrics: { marketDemand: avg.market, competition: avg.innovation, feasibility: avg.execution, financial: avg.scalability, risk: avg.team }, color: "var(--accent)" }]} /><p className="tiny faint center">Axes mapped: Market, Innovation, Execution, Scalability, Team</p></Card>
           {rows.map((f) => <Card key={f._id}><div className="row between mb"><Link to={`/app/ideas/${f.idea._id}`}><b>{f.idea.title}</b></Link>{f.idea.report?.score != null && <span className="small muted">AI {f.idea.report.score} → Expert <b style={{ color: "var(--text)" }}>{f.score}</b> ({f.score - f.idea.report.score >= 0 ? "+" : ""}{f.score - f.idea.report.score})</span>}</div><FeedbackItem fb={f} /></Card>)}
         </div>)}</Async>
     </>
@@ -125,7 +125,7 @@ function Disputes() {
 function EvalReports() {
   const { q, rows } = useMyEvals();
   const asg = useLive("/assignments", { params: { kind: "evaluation" } });
-  const recs = ["strong_yes", "yes", "maybe", "no"].map((k, i) => ({ name: k.replace("_", " "), value: rows.filter((r) => r.recommendation === k).length, color: ["#34d399", "#60a5fa", "#fbbf24", "#fb7185"][i] }));
+  const recs = ["strong_yes", "yes", "maybe", "no"].map((k, i) => ({ name: k.replace("_", " "), value: rows.filter((r) => r.recommendation === k).length, color: ["var(--success)", "var(--info)", "var(--warning)", "var(--danger)"][i] }));
   const avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length) : 0;
   return (
     <>
@@ -133,7 +133,7 @@ function EvalReports() {
       <Async q={q}>{() => (
         <div className="col gap-l stagger">
           <div className="grid g4"><Stat icon={Award} label="Evaluations done" value={rows.length} tone="purple" /><Stat icon={Star} label="Average score given" value={avg} tone="cyan" /><Stat icon={Check} label="Completed tasks" value={(asg.data || []).filter((a) => a.stage === "completed").length} tone="green" /><Stat icon={Scale} label="Open disputes" value={rows.filter((r) => r.dispute?.status === "open").length} tone="orange" /></div>
-          <div className="grid g2"><Card title="Recommendations"><Donut data={recs} /><Legend items={recs} /></Card><Card title="Scores given"><Bars data={rows.map((r) => ({ name: r.idea.title.slice(0, 14), Expert: r.score, AI: r.idea.report?.score || 0 }))} bars={[{ key: "Expert", name: "Expert", color: "#8b5cf6" }, { key: "AI", name: "AI", color: "#22d3ee" }]} max={100} /></Card></div>
+          <div className="grid g2"><Card title="Recommendations"><Donut data={recs} /><Legend items={recs} /></Card><Card title="Scores given"><Bars data={rows.map((r) => ({ name: r.idea.title.slice(0, 14), Expert: r.score, AI: r.idea.report?.score || 0 }))} bars={[{ key: "Expert", name: "Expert", color: "var(--primary)" }, { key: "AI", name: "AI", color: "var(--accent)" }]} max={100} /></Card></div>
         </div>)}</Async>
     </>
   );
@@ -155,7 +155,7 @@ function Quality() {
       <Async q={q}>{() => (
         <div className="col gap-l stagger">
           <div className="grid g4"><Stat icon={Scale} label="Bias vs AI" value={bias} suffix=" pts" tone={Math.abs(bias) > 10 ? "orange" : "green"} sub={bias > 0 ? "You score higher than AI" : bias < 0 ? "You score lower than AI" : "Perfectly aligned"} /><Stat icon={Gauge} label="Avg. deviation" value={mad} suffix=" pts" tone="cyan" /><Stat icon={Check} label="Avg. turnaround" value={turn} suffix={turn === "—" ? "" : " days"} tone="purple" /><Stat icon={Scale} label="Dispute rate" value={disputeRate} suffix="%" tone="pink" /></div>
-          <Card title="Calibration: expert minus AI score per idea">{withAi.length ? <Bars data={withAi.map((r) => ({ name: r.idea.title.slice(0, 14), Delta: r.score - r.idea.report.score }))} bars={[{ key: "Delta", name: "Expert − AI", color: "#ec4899" }]} /> : <p className="muted">Submit evaluations to see calibration.</p>}</Card>
+          <Card title="Calibration: expert minus AI score per idea">{withAi.length ? <Bars data={withAi.map((r) => ({ name: r.idea.title.slice(0, 14), Delta: r.score - r.idea.report.score }))} bars={[{ key: "Delta", name: "Expert − AI", color: "var(--primary)" }]} /> : <p className="muted">Submit evaluations to see calibration.</p>}</Card>
         </div>)}</Async>
     </>
   );

@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.jsx";
-import { CosmicBackground } from "./components/fx.jsx";
 import { ConfirmHost, Loader, Toaster } from "./components/ui.jsx";
 import AppShell from "./components/AppShell.jsx";
 import Home from "./pages/Home.jsx";
@@ -25,7 +24,6 @@ const LegacyIdea = () => <Navigate to={`/app/ideas/${useParams().id}`} replace /
 export default function App() {
   return (
     <>
-      <CosmicBackground />
       <div className="app-root">
         <Routes>
           <Route path="/" element={<Home />} />

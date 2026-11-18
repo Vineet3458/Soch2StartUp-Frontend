@@ -72,7 +72,7 @@ function Sidebar({ open, onClose }) {
 }
 
 /* ── Notification bell ── */
-const NOTIF_COLOR = { success: "var(--success)", warning: "var(--warning)", feedback: "var(--accent)", session: "var(--info)", system: "var(--pink)" };
+const NOTIF_COLOR = { success: "var(--success)", warning: "var(--warning)", feedback: "var(--accent)", session: "var(--info)", system: "var(--primary)" };
 function Bell_() {
   const [open, setOpen] = useState(false);
   const ref = useClickOutside(() => setOpen(false));

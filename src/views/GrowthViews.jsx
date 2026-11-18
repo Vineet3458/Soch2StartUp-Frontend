@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Flag, Lightbulb, Plus, Printer, Save, Sparkles, Trash2, Wand2 } from "lucide-react";
 import api from "../api/client.js";
@@ -16,7 +16,18 @@ function Plan() {
   const { q, idea, picker } = useIdeaPicker({ statuses: ["draft", "submitted", "under_review", "approved", "changes_requested"] });
   const [plan, setPlan] = useState({});
   const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (idea) { setPlan(idea.plan || {}); setDirty(false); } }, [idea?._id, idea?.updatedAt]);
+  const currentIdeaId = useRef(idea?._id);
+  useEffect(() => {
+    if (idea) {
+      if (currentIdeaId.current !== idea._id) {
+        currentIdeaId.current = idea._id;
+        setPlan(idea.plan || {});
+        setDirty(false);
+      } else if (!dirty) {
+        setPlan(idea.plan || {});
+      }
+    }
+  }, [idea?._id, idea?.updatedAt, dirty]);
   const set = (k, v) => { setPlan((p) => ({ ...p, [k]: v })); setDirty(true); };
   const filled = FIELDS.filter(([k]) => (plan[k] || "").trim()).length;
   const autofill = () => {
