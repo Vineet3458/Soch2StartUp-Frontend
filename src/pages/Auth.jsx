@@ -24,7 +24,7 @@ function AuthLayout({ children }) {
           <div>
             <img className="astro" src="/assets/founderverse/astronaut-laptop.png" alt="" />
             <div className="center" style={{ marginTop: 32 }}>
-              <h2 style={{ fontSize: 30 }}><span className="grad-text">{cfg.platform.tagline}</span></h2>
+              <h2 style={{ fontSize: 30 }}>{cfg.platform.tagline}</h2>
               <p className="muted" style={{ marginTop: 10 }}>AI validation · expert evaluation · mentor guidance — all in one live workspace.</p>
             </div>
           </div>

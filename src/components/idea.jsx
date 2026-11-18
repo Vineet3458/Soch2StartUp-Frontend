@@ -51,7 +51,7 @@ export function ReportBody({ idea, compact }) {
       </Card>
       <div className="grid g2">
         <Card title="Score breakdown" icon={Star}><MetricBars metrics={r.metrics} /></Card>
-        <Card title="Strength profile" icon={Star}><RadarMetrics series={[{ name: "This idea", metrics: r.metrics, color: "#8b5cf6" }]} height={250} /></Card>
+        <Card title="Strength profile" icon={Star}><RadarMetrics series={[{ name: "This idea", metrics: r.metrics, color: "var(--primary)" }]} height={250} /></Card>
       </div>
       <div className="grid g2">
         <Card title="Market research" icon={FileText}><p className="muted pre">{r.marketResearch}</p></Card>

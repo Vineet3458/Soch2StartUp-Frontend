@@ -123,7 +123,7 @@ function Categories() {
               <Toggle label={`${cat.name} enabled`} checked={cat.enabled} onChange={(v) => upd(i, { enabled: v })} />
               <button className="icon-btn" disabled={(used[cat.name] || 0) > 0} title={used[cat.name] ? "In use – disable it instead" : "Delete"} onClick={() => c.setDraft(d.filter((_, n) => n !== i))} aria-label="Delete category"><Trash2 size={16} /></button>
             </div>))}</div>
-          <div className="row mt"><input className="input" style={{ maxWidth: 280 }} placeholder="New category name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && name.trim()) { c.setDraft([...d, { name: name.trim(), enabled: true, color: "#8b5cf6" }]); setName(""); } }} /><Button variant="outline" icon={Plus} disabled={!name.trim()} onClick={() => { c.setDraft([...d, { name: name.trim(), enabled: true, color: "#8b5cf6" }]); setName(""); }}>Add</Button></div>
+          <div className="row mt"><input className="input" style={{ maxWidth: 280 }} placeholder="New category name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && name.trim()) { c.setDraft([...d, { name: name.trim(), enabled: true, color: "#0070F3" }]); setName(""); } }} /><Button variant="outline" icon={Plus} disabled={!name.trim()} onClick={() => { c.setDraft([...d, { name: name.trim(), enabled: true, color: "#0070F3" }]); setName(""); }}>Add</Button></div>
           <SaveBar c={c} />
         </Card>)}</Async>
     </>

@@ -4,21 +4,19 @@ import { METRIC_LABELS, METRIC_SHORT, scoreColor } from "../lib/format.js";
 import { CountUp } from "./fx.jsx";
 
 const axis = { stroke: "var(--faint)", fontSize: 12, tickLine: false, axisLine: false };
-const tip = { contentStyle: { background: "var(--surface-solid)", border: "1px solid var(--border-strong)", borderRadius: 12, color: "var(--text)", fontSize: 13, boxShadow: "var(--shadow)" }, itemStyle: { color: "var(--text)" }, labelStyle: { color: "var(--muted)" }, cursor: { fill: "rgba(139,92,246,.08)" } };
-export const PALETTE = ["#8b5cf6", "#22d3ee", "#ec4899", "#34d399", "#fbbf24", "#60a5fa", "#fb7185", "#a3e635"];
+const tip = { contentStyle: { background: "var(--surface-solid)", border: "1px solid var(--border-strong)", borderRadius: 12, color: "var(--text)", fontSize: 13, boxShadow: "none" }, itemStyle: { color: "var(--text)" }, labelStyle: { color: "var(--muted)" }, cursor: { fill: "rgba(0,112,243,.08)" } };
+export const PALETTE = ["var(--primary)", "var(--accent)", "var(--warning)", "var(--danger)", "#7928CA", "var(--muted)", "var(--text)", "#00B8D9"];
 
 // Animated circular score gauge
 export function ScoreRing({ score = 0, size = 150, stroke = 12, label = "SCORE", color }) {
   const [p, setP] = useState(0);
-  const id = useId();
   useEffect(() => { const t = setTimeout(() => setP(score), 120); return () => clearTimeout(t); }, [score]);
   const r = (size - stroke) / 2, c = 2 * Math.PI * r, col = color || scoreColor(score);
   return (
     <div className="score-ring" style={{ width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)", overflow: "visible" }}>
-        <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop stopColor={col} /><stop offset="1" stopColor="var(--accent)" /></linearGradient></defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-2)" strokeWidth={stroke} />
-        <circle className="ring-fg" cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * p) / 100} style={{ filter: `drop-shadow(0 0 8px ${col})` }} />
+        <circle className="ring-fg" cx={size / 2} cy={size / 2} r={r} fill="none" stroke={col} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * p) / 100} />
       </svg>
       <div className="num" style={{ fontSize: size * 0.3, color: col }}><CountUp value={score} />{label && <small>{label}</small>}</div>
     </div>
@@ -55,7 +53,7 @@ export function RadarMetrics({ series, height = 300 }) {
   );
 }
 
-export function AreaTrend({ data, x = "date", y = "count", height = 220, color = "#8b5cf6", name = "Count", fmtX }) {
+export function AreaTrend({ data, x = "date", y = "count", height = 220, color = "var(--primary)", name = "Count", fmtX }) {
   const id = useId();
   return (
     <ResponsiveContainer width="100%" height={height}>
