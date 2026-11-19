@@ -5,6 +5,8 @@ import InteractiveBackground from "./components/InteractiveBackground.jsx";
 import AppShell from "./components/AppShell.jsx";
 import Home from "./pages/Home.jsx";
 import { Login, Register } from "./pages/Auth.jsx";
+import Privacy from "./pages/Privacy.jsx";
+import Terms from "./pages/Terms.jsx";
 
 function Protected({ children }) {
   const { user, loading } = useAuth();
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<GuestOnly><Login /></GuestOnly>} />
           <Route path="/register" element={<GuestOnly><Register /></GuestOnly>} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/app/*" element={<Protected><AppShell /></Protected>} />
           {/* Old URLs keep working */}
           {["/dashboard", "/admin", "/superadmin", "/mentor"].map((p) => <Route key={p} path={p} element={<Navigate to="/app" replace />} />)}

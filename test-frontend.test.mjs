@@ -82,6 +82,9 @@ test("auth: getSafeRedirect prevents redirect loops and open redirects", () => {
   assert.equal(auth.getSafeRedirect("/register?tab=mentor"), "/app");
   // Open redirect attempts
   assert.equal(auth.getSafeRedirect("//evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("/\\evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("/\\\\evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("\\evil.com"), "/app");
   assert.equal(auth.getSafeRedirect("https://evil.com"), "/app");
   assert.equal(auth.getSafeRedirect("javascript:alert(1)"), "/app");
   assert.equal(auth.getSafeRedirect(null), "/app");
@@ -97,6 +100,16 @@ test("auth: isEmailValid validates email patterns correctly", () => {
   assert.equal(auth.isEmailValid("@domain.com"), false);
   assert.equal(auth.isEmailValid("foo@domain"), false);
   assert.equal(auth.isEmailValid(""), false);
+});
+
+test("auth: isPasswordValid validates password strength rules", () => {
+  assert.equal(auth.isPasswordValid("Password123"), true);
+  assert.equal(auth.isPasswordValid("short1"), false); // < 8 chars
+  assert.equal(auth.isPasswordValid("alllettershere"), false); // no numbers
+  assert.equal(auth.isPasswordValid("1234567890"), false); // no letters
+  assert.equal(auth.isPasswordValid("A".repeat(129) + "1"), false); // > 128 chars
+  assert.equal(auth.isPasswordValid(null), false);
+  assert.equal(auth.isPasswordValid(""), false);
 });
 
 test("auth: DEMO accounts cover all primary roles and valid credentials", () => {

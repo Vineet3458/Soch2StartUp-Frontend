@@ -60,7 +60,7 @@ function Founder() {
           <div className="grid g-main">
             <Card title="Score by idea" icon={TrendingUp}>{trend.length ? <Bars data={trend.map((t) => ({ name: t.date, Score: t.count }))} bars={[{ key: "Score", name: "AI score", color: "var(--primary)" }]} max={100} height={240} /> : <Empty icon={Lightbulb} title="No scores yet">Validate an idea to see your trend.</Empty>}</Card>
             <div className="col">
-              <Card title="Next mentoring session" icon={Calendar}>{next ? <div><b>{next.title}</b><div className="small muted mt-s">{fmtDateTime(next.scheduledAt)} · {next.durationMin} min</div><div className="small muted">with {next.mentor?.name}</div>{next.link && <a href={next.link} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-s">Join</a>}</div> : <p className="muted small">Nothing scheduled. Request a mentor from an idea page.</p>}</Card>
+              <Card title="Next mentoring session" icon={Calendar}>{next ? <div><b>{next.title}</b><div className="small muted mt-s">{fmtDateTime(next.scheduledAt)} · {next.durationMin} min</div><div className="small muted">with {next.mentor?.name}</div>{next.link && /^https?:\/\//i.test(next.link) && <a href={next.link} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm mt-s">Join</a>}</div> : <p className="muted small">Nothing scheduled. Request a mentor from an idea page.</p>}</Card>
               <Activity_ limit={4} />
             </div>
           </div>
