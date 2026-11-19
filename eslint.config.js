@@ -7,7 +7,7 @@ export default [
   { ignores: ["dist", "node_modules"] },
   js.configs.recommended,
   {
-    files: ["src/**/*.{js,jsx}"],
+    files: ["**/*.{js,jsx}"],
     languageOptions: { globals: globals.browser, parserOptions: { ecmaFeatures: { jsx: true } }, sourceType: "module" },
     plugins: { react, "react-hooks": hooks },
     settings: { react: { version: "18" } },

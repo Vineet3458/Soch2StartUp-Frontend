@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AlertTriangle, CheckCircle2, Info, Loader2, Search, X, XCircle } from "lucide-react";
 import { toastStore } from "../lib/toast.js";
 import { initials, statusLabel } from "../lib/format.js";
+import { errMsg } from "../api/client.js";
 import { CountUp } from "./fx.jsx";
 import { useNavigate } from "react-router-dom";
 
@@ -92,7 +93,7 @@ export function SkeletonGrid({ n = 4, h = 90, cols = "g4" }) {
 // Shows a skeleton while the first fetch is in flight
 export function Async({ q, children, skeleton, empty }) {
   if (q.loading && q.data === undefined) return skeleton || <Loader />;
-  if (q.error && q.data === undefined) return <Alert kind="error">{q.error?.response?.data?.message || "Could not load data."}</Alert>;
+  if (q.error && q.data === undefined) return <Alert kind="error">{errMsg(q.error)}</Alert>;
   if (empty && Array.isArray(q.data) && !q.data.length) return empty;
   return children(q.data);
 }

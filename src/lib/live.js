@@ -6,7 +6,7 @@
 //    (dashboards, tables, sidebar badges, charts) updates without a page refresh.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
-import api, { API_BASE } from "../api/client.js";
+import api, { API_BASE, errMsg } from "../api/client.js";
 import { toast } from "./toast.js";
 
 const ALL = ["ideas", "users", "assignments", "feedback", "sessions", "reports", "requests", "resources", "config", "logs", "notifications"];
@@ -112,7 +112,7 @@ export const act = async (fn, success) => {
     invalidate();
     return res?.data ?? true;
   } catch (err) {
-    toast.error(err?.response?.data?.message || "Something went wrong");
+    toast.error(errMsg(err));
     return undefined;
   }
 };
