@@ -24,7 +24,45 @@ export function CountUp({ value, duration = 1100, decimals = 0, prefix = "", suf
   return <>{prefix}{n.toLocaleString("en-IN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</>;
 }
 
-/* Tilt container kept for backward compatibility */
-export function Tilt({ children, className = "", ...rest }) {
-  return <div className={className} {...rest}>{children}</div>;
+/* 3D Interactive Parallax Tilt container */
+export function Tilt({ children, className = "", max = 6, scale = 1.01, ...rest }) {
+  const ref = useRef(null);
+  const [transform, setTransform] = useState("");
+  const [transition, setTransition] = useState("");
+
+  const handleMouseMove = (e) => {
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -max;
+    const rotateY = ((x - centerX) / centerX) * max;
+
+    setTransform(`perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(${scale}, ${scale}, ${scale})`);
+    setTransition("transform 0.08s ease-out");
+  };
+
+  const handleMouseLeave = () => {
+    setTransform("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+    setTransition("transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)");
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        transform,
+        transition,
+        transformStyle: "preserve-3d",
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
 }

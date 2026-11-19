@@ -13,6 +13,20 @@ await build({ entryPoints: ["src/views/registry.jsx"], bundle: true, format: "es
 const { ROUTES, navFor } = await import(pathToFileURL(out).href);
 const fmt = await import(pathToFileURL(path.resolve("src/lib/format.js")).href);
 
+const authOut = path.resolve("node_modules/.cache/auth.test.mjs");
+await build({
+  entryPoints: ["src/pages/Auth.jsx"],
+  bundle: true,
+  format: "esm",
+  platform: "node",
+  outfile: authOut,
+  loader: { ".jsx": "jsx" },
+  external: ["react", "react-dom", "react-router-dom", "lucide-react", "axios"],
+  define: { "import.meta.env": "{}" },
+  logLevel: "silent"
+});
+const auth = await import(pathToFileURL(authOut).href);
+
 const ROLES = ["entrepreneur", "mentor", "industry_expert", "admin", "superadmin", "moderator"];
 // children inherit the feature/permission gate of their parent menu item
 const links = (role) => navFor(role).sections.flatMap((s) => s.items.flatMap((i) => [i, ...(i.children || []).map((c) => ({ ...c, feature: c.feature || i.feature, perm: c.perm || i.perm }))])).filter((i) => i.to).map((i) => ({ label: i.label, to: i.to, feature: i.feature, perm: i.perm }));
@@ -47,4 +61,57 @@ test("format helpers", () => {
   assert.equal(fmt.statusLabel("changes_requested"), "Changes requested");
   assert.equal(fmt.roleLabel("industry_expert"), "Industry Expert");
   assert.equal(fmt.ago(new Date()), "just now");
+});
+
+test("auth: exports Login, Register, DEMO, ROLE_OPTS, getSafeRedirect, and isEmailValid", () => {
+  assert.equal(typeof auth.Login, "function");
+  assert.equal(typeof auth.Register, "function");
+  assert.ok(Array.isArray(auth.DEMO));
+  assert.ok(Array.isArray(auth.ROLE_OPTS));
+  assert.equal(typeof auth.getSafeRedirect, "function");
+  assert.equal(typeof auth.isEmailValid, "function");
+});
+
+test("auth: getSafeRedirect prevents redirect loops and open redirects", () => {
+  assert.equal(auth.getSafeRedirect("/app/ideas"), "/app/ideas");
+  assert.equal(auth.getSafeRedirect("/app/compare?filter=active"), "/app/compare?filter=active");
+  // Loop targets
+  assert.equal(auth.getSafeRedirect("/login"), "/app");
+  assert.equal(auth.getSafeRedirect("/login?from=/somewhere"), "/app");
+  assert.equal(auth.getSafeRedirect("/register"), "/app");
+  assert.equal(auth.getSafeRedirect("/register?tab=mentor"), "/app");
+  // Open redirect attempts
+  assert.equal(auth.getSafeRedirect("//evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("https://evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("javascript:alert(1)"), "/app");
+  assert.equal(auth.getSafeRedirect(null), "/app");
+  assert.equal(auth.getSafeRedirect(undefined), "/app");
+  assert.equal(auth.getSafeRedirect(""), "/app");
+});
+
+test("auth: isEmailValid validates email patterns correctly", () => {
+  assert.equal(auth.isEmailValid("test@example.com"), true);
+  assert.equal(auth.isEmailValid("user.name+tag@sub.domain.co"), true);
+  assert.equal(auth.isEmailValid("invalid"), false);
+  assert.equal(auth.isEmailValid("invalid@"), false);
+  assert.equal(auth.isEmailValid("@domain.com"), false);
+  assert.equal(auth.isEmailValid("foo@domain"), false);
+  assert.equal(auth.isEmailValid(""), false);
+});
+
+test("auth: DEMO accounts cover all primary roles and valid credentials", () => {
+  const expectedLabels = ["Founder", "Mentor", "Expert", "Moderator", "Admin", "Superadmin"];
+  const demoLabels = auth.DEMO.map(([label]) => label);
+  for (const label of expectedLabels) {
+    assert.ok(demoLabels.includes(label), `Missing demo account for ${label}`);
+  }
+  for (const [label, email, password] of auth.DEMO) {
+    assert.ok(email.includes("@"), `${label} has invalid email`);
+    assert.ok(password.length >= 6, `${label} password too short`);
+  }
+});
+
+test("auth: ROLE_OPTS supports self-registerable roles", () => {
+  const roleValues = auth.ROLE_OPTS.map(([value]) => value);
+  assert.deepEqual(roleValues.sort(), ["entrepreneur", "industry_expert", "mentor"].sort());
 });
