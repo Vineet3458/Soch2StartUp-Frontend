@@ -6,19 +6,43 @@ import { useLive } from "../lib/live.js";
 const ConfigContext = createContext(null);
 export const useConfig = () => useContext(ConfigContext);
 
-const FALLBACK = { platform: { name: "Soch2Startup", tagline: "Turn your startup idea into a scalable business", registrationOpen: true, maintenance: {}, banner: {} }, features: {}, categories: [], permissions: [], scoring: { thresholds: { go: 70, improve: 50 }, weights: {} } };
+const FALLBACK = {
+  platform: {
+    name: "Soch2Startup",
+    tagline: "Turn your startup idea into a scalable business",
+    supportEmail: "support@soch2startup.com",
+    registrationOpen: true,
+    requireVerification: true,
+    maintenance: { enabled: false, message: "" },
+    banner: { enabled: false, text: "", tone: "info" }
+  },
+  features: {},
+  categories: [],
+  permissions: [],
+  scoring: { thresholds: { go: 70, improve: 50 }, weights: {} }
+};
 
 export function ConfigProvider({ children }) {
   const { user, updateUser } = useAuth();
   // Logged-in users get permissions + scoring thresholds; visitors get the public subset. Both update live.
   const app = useLive("/config/app", { skip: !user });
   const pub = useLive("/config/public", { skip: Boolean(user) });
-  const cfg = (user ? app.data : pub.data) || FALLBACK;
+  const raw = (user ? app.data : pub.data) || {};
+  const cfg = {
+    ...FALLBACK,
+    ...raw,
+    platform: { ...FALLBACK.platform, ...(raw.platform || {}) },
+    features: { ...FALLBACK.features, ...(raw.features || {}) },
+  };
 
   const [theme, setThemeState] = useState(() => localStorage.getItem("theme") || "dark");
   useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("theme", theme); }, [theme]);
   useEffect(() => { if (user?.prefs?.theme && user.prefs.theme !== theme) setThemeState(user.prefs.theme); }, [user?.id]);
-  useEffect(() => { document.title = `${cfg.platform.name} – ${cfg.platform.tagline}`; }, [cfg.platform.name, cfg.platform.tagline]);
+  useEffect(() => {
+    const titleName = cfg.platform?.name || FALLBACK.platform.name;
+    const titleTag = cfg.platform?.tagline || FALLBACK.platform.tagline;
+    document.title = `${titleName} – ${titleTag}`;
+  }, [cfg.platform?.name, cfg.platform?.tagline]);
 
   const setTheme = useCallback((t) => {
     setThemeState(t);

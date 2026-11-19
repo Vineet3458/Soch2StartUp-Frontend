@@ -72,7 +72,7 @@ export function Modal({ open, onClose, title, children, footer, width = 560 }) {
   );
 }
 
-export const Field = ({ label, hint, children, className = "" }) => <div className={`field ${className}`}>{label && <label>{label}</label>}{children}{hint && <span className="hint">{hint}</span>}</div>;
+export const Field = ({ label, hint, htmlFor, children, className = "" }) => <div className={`field ${className}`}>{label && <label htmlFor={htmlFor}>{label}</label>}{children}{hint && <span className="hint">{hint}</span>}</div>;
 export const Toggle = ({ checked, onChange, disabled, label }) => <button type="button" role="switch" aria-checked={checked} aria-label={label} className={`toggle ${checked ? "on" : ""}`} disabled={disabled} onClick={() => onChange(!checked)} />;
 export const Slider = ({ value, onChange, min = 0, max = 100, step = 1 }) => <input type="range" min={min} max={max} step={step} value={value} style={{ "--p": `${((value - min) / (max - min)) * 100}%` }} onChange={(e) => onChange(Number(e.target.value))} />;
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, GraduationCap, Lock, Mail, Rocket, Award, Sparkles, User, Wrench } from "lucide-react";
+import { Eye, EyeOff, GraduationCap, Lock, Mail, Rocket, Award, Sparkles, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
 import { errMsg } from "../api/client.js";
@@ -8,39 +8,66 @@ import { Alert, Button, Field } from "../components/ui.jsx";
 import { BrandMark } from "../components/Brand.jsx";
 import PublicNav from "../components/PublicNav.jsx";
 
-const DEMO = [
-  ["Founder", "entrepreneur@soch2startup.com", "Founder@123"], ["Mentor", "mentor@soch2startup.com", "Mentor@123"], ["Expert", "expert@soch2startup.com", "Expert@123"],
-  ["Moderator", "moderator@soch2startup.com", "Moderator@123"], ["Admin", "admin@soch2startup.com", "Admin@12345"], ["Superadmin", "superadmin@soch2startup.com", "Admin@12345"],
+export const DEMO = [
+  ["Founder", "entrepreneur@soch2startup.com", "Founder@123"],
+  ["Mentor", "mentor@soch2startup.com", "Mentor@123"],
+  ["Expert", "expert@soch2startup.com", "Expert@123"],
+  ["Moderator", "moderator@soch2startup.com", "Moderator@123"],
+  ["Admin", "admin@soch2startup.com", "Admin@12345"],
+  ["Superadmin", "superadmin@soch2startup.com", "Admin@12345"],
 ];
 
-function AuthLayout({ children }) {
+export const isEmailValid = (email) => /^\S+@\S+\.\S+$/.test(email);
+
+export const getSafeRedirect = (from) => {
+  if (typeof from !== "string" || !from.startsWith("/") || from.startsWith("//")) return "/app";
+  const path = from.split("?")[0].split("#")[0];
+  if (path === "/login" || path === "/register") return "/app";
+  return from;
+};
+
+export function AuthLayout({ children }) {
   const cfg = useConfig();
+  const platform = cfg?.platform || {};
   return (
-    <>
+    <div className="auth-wrapper">
       <div className="pub"><PublicNav /></div>
-      <div className="auth-page">
-        <div className="auth-art">
-          <div style={{ height: 56 }} />
-          <div>
-            <img className="astro" src="/assets/founderverse/astronaut-laptop.png" alt="" />
-            <div className="center" style={{ marginTop: 32 }}>
-              <h2 style={{ fontSize: 30 }}>{cfg.platform.tagline}</h2>
-              <p className="muted" style={{ marginTop: 10 }}>AI validation · expert evaluation · mentor guidance — all in one live workspace.</p>
+      <main className="auth-page">
+        <div className="auth-container">
+          <section className="auth-art" aria-label="Platform introduction">
+            <div className="auth-art-panel">
+              <img
+                className="astro"
+                src="/assets/founderverse/astronaut-laptop.png"
+                alt="Soch2Startup platform illustration"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
-          </div>
-          <div className="row gap-l" style={{ justifyContent: "center" }}>
-            {["AI-scored reports", "Real-time updates", "Role-based workspaces"].map((t) => <span key={t} className="chip"><Sparkles size={13} color="var(--primary)" />{t}</span>)}
-          </div>
+            <div className="auth-art-copy">
+              <h2>{platform.tagline || "Turn your startup idea into a scalable business"}</h2>
+              <p className="muted">AI validation · expert evaluation · mentor guidance — all in one live workspace.</p>
+            </div>
+            <div className="auth-chips-row">
+              {["AI-scored reports", "Real-time updates", "Role-based workspaces"].map((t) => (
+                <span key={t} className="chip">
+                  <Sparkles size={13} color="var(--primary)" />
+                  {t}
+                </span>
+              ))}
+            </div>
+          </section>
+          <section className="auth-form-side">{children}</section>
         </div>
-        <div className="auth-form-side">{children}</div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
 
 export function Login() {
   const { login } = useAuth();
-  const { platform } = useConfig();
+  const cfg = useConfig();
+  const platform = cfg?.platform || {};
   const nav = useNavigate();
   const loc = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -49,62 +76,298 @@ export function Login() {
   const [show, setShow] = useState(false);
 
   const submit = async (e) => {
-    e.preventDefault(); setBusy(true); setError("");
-    try { await login(form.email, form.password); nav(loc.state?.from || "/app", { replace: true }); }
-    catch (err) { setError(errMsg(err)); } finally { setBusy(false); }
+    e.preventDefault();
+    if (busy) return;
+    const email = form.email.trim();
+    if (!email || !form.password) {
+      setError("Email and password are required");
+      return;
+    }
+    if (!isEmailValid(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await login(email, form.password);
+      nav(getSafeRedirect(loc.state?.from), { replace: true });
+    } catch (err) {
+      setError(errMsg(err));
+    } finally {
+      setBusy(false);
+    }
   };
+
   return (
     <AuthLayout>
       <form className="card auth-card glow-border" onSubmit={submit}>
-        <div className="row" style={{ marginBottom: 18 }}><BrandMark size={44} /><div><h2>Welcome back</h2><p className="muted small">Sign in to your {platform.name} workspace</p></div></div>
-        {platform.maintenance?.enabled && <Alert kind="warning"><Wrench size={0} /> {platform.maintenance.message || "Platform under maintenance. Only admins can sign in."}</Alert>}
+        <div className="row" style={{ marginBottom: 18 }}>
+          <BrandMark size={44} />
+          <div>
+            <h2>Welcome back</h2>
+            <p className="muted small">Sign in to your {platform.name || "Soch2Startup"} workspace</p>
+          </div>
+        </div>
+        {platform.maintenance?.enabled && (
+          <Alert kind="warning">
+            {platform.maintenance.message || "Platform under maintenance. Only admins can sign in."}
+          </Alert>
+        )}
         {error && <Alert kind="error">{error}</Alert>}
         <div className="col" style={{ marginTop: 14 }}>
-          <Field label="Email address"><div className="input-icon"><Mail size={17} /><input className="input" type="email" autoComplete="email" placeholder="you@domain.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></div></Field>
-          <Field label="Password"><div className="input-icon"><Lock size={17} /><input className="input" type={show ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required style={{ paddingRight: 44 }} />
-            <button type="button" className="btn-ghost" style={{ position: "absolute", right: 8, top: 8, border: "none", borderRadius: 8, padding: 6, background: "none", color: "var(--faint)" }} onClick={() => setShow(!show)} aria-label="Toggle password visibility">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></Field>
-          <Button loading={busy} className="full" type="submit">Sign in</Button>
+          <Field label="Email address" htmlFor="login-email">
+            <div className="input-icon">
+              <Mail size={17} />
+              <input
+                id="login-email"
+                className="input"
+                type="email"
+                autoComplete="email"
+                placeholder="you@domain.com"
+                value={form.email}
+                disabled={busy}
+                onChange={(e) => {
+                  setForm({ ...form, email: e.target.value });
+                  if (error) setError("");
+                }}
+                required
+              />
+            </div>
+          </Field>
+          <Field label="Password" htmlFor="login-password">
+            <div className="input-icon">
+              <Lock size={17} />
+              <input
+                id="login-password"
+                className="input"
+                type={show ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={form.password}
+                disabled={busy}
+                onChange={(e) => {
+                  setForm({ ...form, password: e.target.value });
+                  if (error) setError("");
+                }}
+                required
+                style={{ paddingRight: 44 }}
+              />
+              <button
+                type="button"
+                className="btn-ghost password-toggle"
+                disabled={busy}
+                onClick={() => setShow(!show)}
+                aria-label={show ? "Hide password" : "Show password"}
+              >
+                {show ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+          </Field>
+          <Button loading={busy} className="full" type="submit" disabled={busy}>Sign in</Button>
         </div>
-        <p className="muted center small mt">New here? <Link to="/register">Create an account</Link></p>
+        <p className="muted center small mt">
+          New here? <Link to="/register" state={loc.state}>Create an account</Link>
+        </p>
         <hr className="divider" />
         <div className="tiny faint center" style={{ marginBottom: 8 }}>DEMO ACCOUNTS · click to fill</div>
         <div className="row wrap" style={{ justifyContent: "center", gap: 6 }}>
-          {DEMO.map(([l, e, p]) => <button type="button" key={l} className="demo-pill" onClick={() => setForm({ email: e, password: p })}>{l}</button>)}
+          {DEMO.map(([l, e, p]) => (
+            <button
+              type="button"
+              key={l}
+              className="demo-pill"
+              disabled={busy}
+              title={`${l}: ${e}`}
+              onClick={() => {
+                setForm({ email: e, password: p });
+                setError("");
+              }}
+            >
+              {l}
+            </button>
+          ))}
         </div>
       </form>
     </AuthLayout>
   );
 }
 
-const ROLE_OPTS = [["entrepreneur", "Founder", Rocket], ["mentor", "Mentor", GraduationCap], ["industry_expert", "Expert", Award]];
+export const ROLE_OPTS = [
+  ["entrepreneur", "Founder", Rocket],
+  ["mentor", "Mentor", GraduationCap],
+  ["industry_expert", "Expert", Award]
+];
+
 export function Register() {
   const { register } = useAuth();
-  const { platform } = useConfig();
+  const cfg = useConfig();
+  const platform = cfg?.platform || {};
   const nav = useNavigate();
+  const loc = useLocation();
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "entrepreneur" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-  const submit = async (e) => {
-    e.preventDefault(); setBusy(true); setError("");
-    try { await register(form); nav("/app", { replace: true }); } catch (err) { setError(errMsg(err)); } finally { setBusy(false); }
+  const [show, setShow] = useState(false);
+
+  const set = (k) => (e) => {
+    setForm({ ...form, [k]: e.target.value });
+    if (error) setError("");
   };
-  const needsVerify = platform.requireVerification && form.role !== "entrepreneur";
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    if (platform.registrationOpen === false) {
+      setError("Registration is currently closed by the administrator.");
+      return;
+    }
+    if (platform.maintenance?.enabled) {
+      setError(platform.maintenance.message || "Platform under maintenance. Registration is temporarily disabled.");
+      return;
+    }
+    const name = form.name.trim();
+    const email = form.email.trim();
+    if (!name || !email || !form.password) {
+      setError("Please fill in all required fields");
+      return;
+    }
+    if (!isEmailValid(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await register({ ...form, name, email });
+      nav(getSafeRedirect(loc.state?.from), { replace: true });
+    } catch (err) {
+      setError(errMsg(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const isRegistrationDisabled = platform.registrationOpen === false || Boolean(platform.maintenance?.enabled);
+  const needsVerify = (platform.requireVerification ?? true) && form.role !== "entrepreneur";
+
   return (
     <AuthLayout>
       <form className="card auth-card glow-border" onSubmit={submit}>
-        <div className="row" style={{ marginBottom: 18 }}><BrandMark size={44} /><div><h2>Create your account</h2><p className="muted small">Validate, mentor or evaluate startup ideas</p></div></div>
-        {!platform.registrationOpen && <Alert kind="warning">Registration is currently closed by the administrator.</Alert>}
+        <div className="row" style={{ marginBottom: 18 }}>
+          <BrandMark size={44} />
+          <div>
+            <h2>Create your account</h2>
+            <p className="muted small">Validate, mentor or evaluate startup ideas</p>
+          </div>
+        </div>
+        {platform.maintenance?.enabled && (
+          <Alert kind="warning">
+            {platform.maintenance.message || "Platform under maintenance. Registration is temporarily disabled."}
+          </Alert>
+        )}
+        {platform.registrationOpen === false && !platform.maintenance?.enabled && (
+          <Alert kind="warning">Registration is currently closed by the administrator.</Alert>
+        )}
         {error && <Alert kind="error">{error}</Alert>}
         <div className="col" style={{ marginTop: 14 }}>
-          <Field label="I am a"><div className="role-pick">{ROLE_OPTS.map(([v, l, I]) => <button type="button" key={v} className={`role-opt ${form.role === v ? "on" : ""}`} onClick={() => setForm({ ...form, role: v })}><I size={20} />{l}</button>)}</div></Field>
-          {needsVerify && <div className="hint">Mentor and expert accounts are reviewed by an admin before they can give feedback.</div>}
-          <Field label="Full name"><div className="input-icon"><User size={17} /><input className="input" placeholder="Aarav Patel" value={form.name} onChange={set("name")} required maxLength={80} /></div></Field>
-          <Field label="Email address"><div className="input-icon"><Mail size={17} /><input className="input" type="email" placeholder="you@domain.com" value={form.email} onChange={set("email")} required /></div></Field>
-          <Field label="Password" hint="At least 6 characters"><div className="input-icon"><Lock size={17} /><input className="input" type="password" minLength={6} placeholder="••••••••" value={form.password} onChange={set("password")} required /></div></Field>
-          <Button loading={busy} className="full" type="submit" disabled={!platform.registrationOpen}>Create account</Button>
+          <Field label="I am a">
+            <div className="role-pick" role="radiogroup" aria-label="Account role">
+              {ROLE_OPTS.map(([v, l, I]) => (
+                <button
+                  type="button"
+                  key={v}
+                  role="radio"
+                  aria-checked={form.role === v}
+                  tabIndex={form.role === v ? 0 : -1}
+                  disabled={busy}
+                  className={`role-opt ${form.role === v ? "on" : ""}`}
+                  onClick={() => {
+                    setForm({ ...form, role: v });
+                    if (error) setError("");
+                  }}
+                >
+                  <I size={20} />
+                  {l}
+                </button>
+              ))}
+            </div>
+          </Field>
+          {needsVerify && (
+            <div className="hint" style={{ marginTop: 2, marginBottom: 4 }}>
+              Mentor and expert accounts are reviewed by an admin before they can give feedback.
+            </div>
+          )}
+          <Field label="Full name" htmlFor="register-name">
+            <div className="input-icon">
+              <User size={17} />
+              <input
+                id="register-name"
+                className="input"
+                placeholder="Aarav Patel"
+                autoComplete="name"
+                value={form.name}
+                disabled={busy}
+                onChange={set("name")}
+                required
+                maxLength={80}
+              />
+            </div>
+          </Field>
+          <Field label="Email address" htmlFor="register-email">
+            <div className="input-icon">
+              <Mail size={17} />
+              <input
+                id="register-email"
+                className="input"
+                type="email"
+                autoComplete="email"
+                placeholder="you@domain.com"
+                value={form.email}
+                disabled={busy}
+                onChange={set("email")}
+                required
+              />
+            </div>
+          </Field>
+          <Field label="Password" hint="At least 6 characters" htmlFor="register-password">
+            <div className="input-icon">
+              <Lock size={17} />
+              <input
+                id="register-password"
+                className="input"
+                type={show ? "text" : "password"}
+                autoComplete="new-password"
+                minLength={6}
+                placeholder="••••••••"
+                value={form.password}
+                disabled={busy}
+                onChange={set("password")}
+                required
+                style={{ paddingRight: 44 }}
+              />
+              <button
+                type="button"
+                className="btn-ghost password-toggle"
+                disabled={busy}
+                onClick={() => setShow(!show)}
+                aria-label={show ? "Hide password" : "Show password"}
+              >
+                {show ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+          </Field>
+          <Button loading={busy} className="full" type="submit" disabled={isRegistrationDisabled || busy}>
+            Create account
+          </Button>
         </div>
-        <p className="muted center small mt">Already registered? <Link to="/login">Sign in</Link></p>
+        <p className="muted center small mt">
+          Already registered? <Link to="/login" state={loc.state}>Sign in</Link>
+        </p>
       </form>
     </AuthLayout>
   );

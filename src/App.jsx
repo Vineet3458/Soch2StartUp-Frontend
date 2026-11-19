@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.jsx";
 import { ConfirmHost, Loader, Toaster } from "./components/ui.jsx";
+import InteractiveBackground from "./components/InteractiveBackground.jsx";
 import AppShell from "./components/AppShell.jsx";
 import Home from "./pages/Home.jsx";
 import { Login, Register } from "./pages/Auth.jsx";
@@ -24,6 +25,7 @@ const LegacyIdea = () => <Navigate to={`/app/ideas/${useParams().id}`} replace /
 export default function App() {
   return (
     <>
+      <InteractiveBackground />
       <div className="app-root">
         <Routes>
           <Route path="/" element={<Home />} />
