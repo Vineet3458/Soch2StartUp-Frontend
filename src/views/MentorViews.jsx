@@ -83,7 +83,7 @@ function Sessions() {
                 <div className="row wrap small muted mt-s" style={{ gap: 12 }}><span className="row gap-s"><I size={14} />{ml}</span><span>{fmtDateTime(s.scheduledAt)} · {s.durationMin} min</span></div>
                 <div className="row small muted mt-s gap-s"><Avatar name={mentor ? s.founder?.name : s.mentor?.name} size={22} />{mentor ? `Founder: ${s.founder?.name}` : `Mentor: ${s.mentor?.name}`}</div>
                 {s.agenda && <p className="small muted mt-s">{s.agenda}</p>}{s.notes && <div className="callout small mt-s"><b>Notes:</b> {s.notes}</div>}
-                {s.link && s.status === "scheduled" && <a className="btn btn-outline btn-sm mt-s" href={s.link} target="_blank" rel="noreferrer">Join</a>}
+                {s.link && s.status === "scheduled" && /^https?:\/\//i.test(s.link) && <a className="btn btn-outline btn-sm mt-s" href={s.link} target="_blank" rel="noopener noreferrer">Join</a>}
                 {(mentor || admin) && <div className="row wrap mt-s">
                   {s.status === "scheduled" && <><Button size="sm" variant="success" icon={Check} onClick={() => setNotes({ s, text: s.notes || "" })}>Complete</Button><Button size="sm" variant="outline" onClick={() => act(() => api.patch(`/sessions/${s._id}`, { status: "cancelled" }), "Session cancelled – founder notified")}>Cancel</Button></>}
                   <Button size="sm" variant="ghost" icon={Trash2} aria-label="Delete" onClick={async () => { if (await confirmDialog({ title: "Delete session?", message: s.title, danger: true, confirmText: "Delete" })) act(() => api.delete(`/sessions/${s._id}`), "Session deleted"); }} /></div>}

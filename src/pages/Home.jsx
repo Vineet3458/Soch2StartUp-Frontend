@@ -89,7 +89,7 @@ export default function Home() {
         <Reveal><div className="cta-box"><h2 style={{ fontSize: "clamp(28px,4vw,44px)" }}>Ready to test your big idea?</h2><p className="muted" style={{ margin: "14px auto 28px", maxWidth: 520, fontSize: 17 }}>Join {platform.name} and get an AI-powered validation report in under a minute.</p><Link to={user ? "/app/validate" : "/register"} className="btn btn-lg">Get started free <ArrowRight size={18} /></Link></div></Reveal>
       </div></section>
 
-      <footer className="footer"><div className="container row between" style={{ flexWrap: "wrap" }}><div className="row"><BrandMark size={28} /><BrandName name={platform.name} /></div><span>© {new Date().getFullYear()} {platform.name}. Built as a Final Year Project.</span>{platform.supportEmail && <a href={`mailto:${platform.supportEmail}`}>{platform.supportEmail}</a>}</div></footer>
+      <footer className="footer"><div className="container row between" style={{ flexWrap: "wrap", gap: 12 }}><div className="row"><BrandMark size={28} /><BrandName name={platform.name} /></div><div className="row gap-m small muted"><span>© {new Date().getFullYear()} {platform.name}. Built as a Final Year Project.</span><Link to="/privacy">Privacy Policy</Link><Link to="/terms">Terms of Service</Link></div>{platform.supportEmail && <a href={`mailto:${platform.supportEmail}`}>{platform.supportEmail}</a>}</div></footer>
     </div>
   );
 }
