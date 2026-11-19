@@ -40,7 +40,6 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-visual">
-            <div className="orbit" style={{ inset: "-30px -20px", borderRadius: "50%" }} />
             <Tilt className="mock" max={6}>
               <div className="row between"><div className="row"><BrandMark size={28} /><b style={{ fontFamily: "var(--font-display)" }}>Idea Validation</b></div><span className="badge GO">✓ GO</span></div>
               <div className="row" style={{ gap: 22, marginTop: 20 }}>
