@@ -7,7 +7,11 @@ export default [
   { ignores: ["dist", "node_modules"] },
   js.configs.recommended,
   {
-    files: ["**/*.{js,jsx}"],
+    files: ["*.{js,mjs}", "vite.config.js", "eslint.config.js", "test-*.mjs"],
+    languageOptions: { globals: { ...globals.node }, sourceType: "module" },
+  },
+  {
+    files: ["src/**/*.{js,jsx}"],
     languageOptions: { globals: globals.browser, parserOptions: { ecmaFeatures: { jsx: true } }, sourceType: "module" },
     plugins: { react, "react-hooks": hooks },
     settings: { react: { version: "18" } },

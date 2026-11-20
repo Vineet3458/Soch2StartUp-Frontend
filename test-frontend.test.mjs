@@ -83,6 +83,9 @@ test("auth: getSafeRedirect prevents redirect loops and open redirects", () => {
   assert.equal(auth.getSafeRedirect("/register?tab=mentor"), "/app");
   // Open redirect attempts
   assert.equal(auth.getSafeRedirect("//evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("/\\evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("/\\\\evil.com"), "/app");
+  assert.equal(auth.getSafeRedirect("\\evil.com"), "/app");
   assert.equal(auth.getSafeRedirect("https://evil.com"), "/app");
   assert.equal(auth.getSafeRedirect("javascript:alert(1)"), "/app");
   assert.equal(auth.getSafeRedirect(null), "/app");
@@ -98,6 +101,16 @@ test("auth: isEmailValid validates email patterns correctly", () => {
   assert.equal(auth.isEmailValid("@domain.com"), false);
   assert.equal(auth.isEmailValid("foo@domain"), false);
   assert.equal(auth.isEmailValid(""), false);
+});
+
+test("auth: isPasswordValid validates password strength rules", () => {
+  assert.equal(auth.isPasswordValid("Password123"), true);
+  assert.equal(auth.isPasswordValid("short1"), false); // < 8 chars
+  assert.equal(auth.isPasswordValid("alllettershere"), false); // no numbers
+  assert.equal(auth.isPasswordValid("1234567890"), false); // no letters
+  assert.equal(auth.isPasswordValid("A".repeat(129) + "1"), false); // > 128 chars
+  assert.equal(auth.isPasswordValid(null), false);
+  assert.equal(auth.isPasswordValid(""), false);
 });
 
 test("auth: DEMO accounts cover all primary roles and valid credentials", () => {
@@ -117,7 +130,37 @@ test("auth: ROLE_OPTS supports self-registerable roles", () => {
   assert.deepEqual(roleValues.sort(), ["entrepreneur", "industry_expert", "mentor"].sort());
 });
 
-test.after(() => {
-  try { rmSync(out, { force: true }); } catch {}
-  try { rmSync(authOut, { force: true }); } catch {}
+const aceternityOut = path.resolve("node_modules/.cache/aceternity.test.mjs");
+await build({
+  entryPoints: ["src/components/aceternity/index.js"],
+  bundle: true,
+  format: "esm",
+  platform: "node",
+  outfile: aceternityOut,
+  loader: { ".jsx": "jsx" },
+  external: ["react", "react-dom", "react-router-dom", "lucide-react"],
+  logLevel: "silent"
+});
+const aceternity = await import(pathToFileURL(aceternityOut).href);
+
+test("aceternity: exports all required UI components cleanly", () => {
+  const expectedExports = [
+    "Spotlight",
+    "FlipWords",
+    "SpotlightCard",
+    "BentoGrid",
+    "BentoGridItem",
+    "InfiniteMovingCards",
+    "Meteors",
+    "ShimmerButton",
+    "GridBackground",
+    "TimelineSteps",
+  ];
+  for (const exp of expectedExports) {
+    assert.ok(aceternity[exp], `Missing aceternity export: ${exp}`);
+    assert.ok(
+      typeof aceternity[exp] === "function" || typeof aceternity[exp] === "object",
+      `${exp} should be a React component`
+    );
+  }
 });

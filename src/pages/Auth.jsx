@@ -7,6 +7,7 @@ import { errMsg } from "../api/client.js";
 import { Alert, Button, Field } from "../components/ui.jsx";
 import { BrandMark } from "../components/Brand.jsx";
 import PublicNav from "../components/PublicNav.jsx";
+import { Spotlight, SpotlightCard } from "../components/aceternity/index.js";
 
 export const DEMO = [
   ["Founder", "entrepreneur@soch2startup.com", "Founder@123"],
@@ -19,8 +20,11 @@ export const DEMO = [
 
 export const isEmailValid = (email) => /^\S+@\S+\.\S+$/.test(email);
 
+export const isPasswordValid = (pw) =>
+  typeof pw === "string" && pw.length >= 8 && pw.length <= 128 && /[A-Za-z]/.test(pw) && /[0-9]/.test(pw);
+
 export const getSafeRedirect = (from) => {
-  if (typeof from !== "string" || !from.startsWith("/") || from.startsWith("//")) return "/app";
+  if (typeof from !== "string" || !from.startsWith("/") || from.startsWith("//") || from.includes("\\")) return "/app";
   const path = from.split("?")[0].split("#")[0];
   if (path === "/login" || path === "/register") return "/app";
   return from;
@@ -34,7 +38,8 @@ export function AuthLayout({ children }) {
       <div className="pub"><PublicNav /></div>
       <main className="auth-page">
         <div className="auth-container">
-          <section className="auth-art" aria-label="Platform introduction">
+          <section className="auth-art" aria-label="Platform introduction" style={{ position: "relative", overflow: "hidden" }}>
+            <Spotlight className="auth-spotlight" />
             <div className="auth-art-panel">
               <img
                 className="astro"
@@ -101,7 +106,7 @@ export function Login() {
 
   return (
     <AuthLayout>
-      <form className="card auth-card glow-border" onSubmit={submit}>
+      <SpotlightCard as="form" className="card auth-card glow-border" onSubmit={submit}>
         <div className="row" style={{ marginBottom: 18 }}>
           <BrandMark size={44} />
           <div>
@@ -169,26 +174,30 @@ export function Login() {
         <p className="muted center small mt">
           New here? <Link to="/register" state={loc.state}>Create an account</Link>
         </p>
-        <hr className="divider" />
-        <div className="tiny faint center" style={{ marginBottom: 8 }}>DEMO ACCOUNTS · click to fill</div>
-        <div className="row wrap" style={{ justifyContent: "center", gap: 6 }}>
-          {DEMO.map(([l, e, p]) => (
-            <button
-              type="button"
-              key={l}
-              className="demo-pill"
-              disabled={busy}
-              title={`${l}: ${e}`}
-              onClick={() => {
-                setForm({ email: e, password: p });
-                setError("");
-              }}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
-      </form>
+        {Boolean(import.meta.env?.DEV) && (
+          <>
+            <hr className="divider" />
+            <div className="tiny faint center" style={{ marginBottom: 8 }}>DEMO ACCOUNTS · click to fill</div>
+            <div className="row wrap" style={{ justifyContent: "center", gap: 6 }}>
+              {DEMO.map(([l, e, p]) => (
+                <button
+                  type="button"
+                  key={l}
+                  className="demo-pill"
+                  disabled={busy}
+                  title={`${l}: ${e}`}
+                  onClick={() => {
+                    setForm({ email: e, password: p });
+                    setError("");
+                  }}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </SpotlightCard>
     </AuthLayout>
   );
 }
@@ -236,8 +245,16 @@ export function Register() {
       setError("Please enter a valid email address");
       return;
     }
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+    if (form.password.length > 128) {
+      setError("Password cannot exceed 128 characters");
+      return;
+    }
+    if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      setError("Password must contain at least one letter and one number");
       return;
     }
     setBusy(true);
@@ -257,7 +274,7 @@ export function Register() {
 
   return (
     <AuthLayout>
-      <form className="card auth-card glow-border" onSubmit={submit}>
+      <SpotlightCard as="form" className="card auth-card glow-border" onSubmit={submit}>
         <div className="row" style={{ marginBottom: 18 }}>
           <BrandMark size={44} />
           <div>
@@ -368,7 +385,7 @@ export function Register() {
         <p className="muted center small mt">
           Already registered? <Link to="/login" state={loc.state}>Sign in</Link>
         </p>
-      </form>
+      </SpotlightCard>
     </AuthLayout>
   );
 }

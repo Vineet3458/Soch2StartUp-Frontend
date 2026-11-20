@@ -1,6 +1,16 @@
 import axios from "axios";
 
-export const API_BASE = (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) || "/api";
+const rawApiUrl =
+  typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL
+    ? String(import.meta.env.VITE_API_URL).trim().replace(/\/+$/, "")
+    : "";
+
+export const API_BASE = rawApiUrl
+  ? rawApiUrl.endsWith("/api")
+    ? rawApiUrl
+    : `${rawApiUrl}/api`
+  : "/api";
+
 const api = axios.create({ baseURL: API_BASE });
 
 api.interceptors.request.use((config) => {
