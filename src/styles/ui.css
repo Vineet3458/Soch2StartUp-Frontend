@@ -15,7 +15,6 @@
   border-color: var(--border-strong);
 }
 .card.link { cursor: pointer; }
-.card.flat { box-shadow: none; }
 .card.tight { padding: 16px; }
 .card.pad0 { padding: 0; overflow: hidden; }
 .card-title {
@@ -161,16 +160,6 @@
   font-size: 15px;
   border-radius: var(--radius-pill);
 }
-.btn-icon {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border-radius: var(--radius-pill);
-}
-.btn-sm.btn-icon {
-  width: 34px;
-  height: 34px;
-}
 .btn.full { width: 100%; }
 .spin { animation: spin .8s linear infinite; }
 
@@ -310,7 +299,6 @@ select.input option {
   padding-left: 38px;
 }
 .hint { font-size: 12px; color: var(--faint); font-family: var(--font-mono); }
-.err-text { color: var(--danger); font-size: 13px; }
 
 /* Alerts */
 .alert {
@@ -618,11 +606,6 @@ input[type=checkbox].check {
 .stat .sub.up { color: var(--success); }
 .stat .sub.down { color: var(--danger); }
 
-.g-purple, .g-cyan, .g-green, .g-orange, .g-pink {
-  --g: var(--surface-2);
-  --gs: transparent;
-}
-
 /* Page header & toolbar */
 .page-head {
   display: flex;
@@ -717,18 +700,6 @@ input[type=checkbox].check {
   margin: 16px 0;
   border: none;
 }
-.kv {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 8px 16px;
-  font-size: 14px;
-}
-.kv dt {
-  color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 12px;
-}
-.kv dd { margin: 0; }
 .list { display: flex; flex-direction: column; }
 .list-item {
   display: flex;

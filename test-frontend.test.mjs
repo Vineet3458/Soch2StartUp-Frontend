@@ -3,17 +3,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { build } from "esbuild";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 mkdirSync("node_modules/.cache", { recursive: true });
-const out = path.resolve("node_modules/.cache/registry.test.mjs"); // inside the project so react/lucide resolve
+const nonce = Date.now();
+const out = path.resolve(`node_modules/.cache/registry.test.${nonce}.mjs`); // inside the project so react/lucide resolve
 await build({ entryPoints: ["src/views/registry.jsx"], bundle: true, format: "esm", platform: "node", outfile: out, loader: { ".jsx": "jsx" }, external: ["react", "lucide-react", "./*.jsx"], logLevel: "silent" });
 const { ROUTES, navFor } = await import(pathToFileURL(out).href);
 const fmt = await import(pathToFileURL(path.resolve("src/lib/format.js")).href);
 
-const authOut = path.resolve("node_modules/.cache/auth.test.mjs");
+const authOut = path.resolve(`node_modules/.cache/auth.test.${nonce}.mjs`);
 await build({
   entryPoints: ["src/pages/Auth.jsx"],
   bundle: true,

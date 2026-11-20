@@ -18,7 +18,14 @@ export function AuthProvider({ children }) {
   // Restore the session on page load
   useEffect(() => {
     if (!localStorage.getItem("token")) return;
-    api.get("/auth/me").then((r) => setUser(r.data.user)).catch(() => localStorage.removeItem("token")).finally(() => setLoading(false));
+    api.get("/auth/me")
+      .then((r) => setUser(r.data.user))
+      .catch((err) => {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          localStorage.removeItem("token");
+        }
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   // Token expired / revoked anywhere -> clean logout instead of a half-broken UI

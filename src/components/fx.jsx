@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 /* Subtle reveal utility (simplified from scroll-reveal) */
-export function Reveal({ children, delay = 0, className = "", as: Tag = "div", ...rest }) {
-  return <Tag className={`reveal in ${className}`} style={{ "--d": `${delay}ms` }} {...rest}>{children}</Tag>;
+export function Reveal({ children, delay: _delay = 0, className = "", as: Tag = "div", ...rest }) {
+  return <Tag className={`reveal in ${className}`} {...rest}>{children}</Tag>;
 }
 
 /* Animated number that counts up */

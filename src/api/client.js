@@ -31,5 +31,8 @@ api.interceptors.response.use(
   }
 );
 
-export const errMsg = (err) => err?.response?.data?.message || (err?.code === "ERR_NETWORK" ? "Cannot reach the server. Is the backend running?" : "Something went wrong");
+export const errMsg = (err) =>
+  err?.response?.data?.message ||
+  err?.response?.data?.error ||
+  (err?.code === "ERR_NETWORK" ? "Cannot reach the server. Is the backend running?" : "Something went wrong");
 export default api;
