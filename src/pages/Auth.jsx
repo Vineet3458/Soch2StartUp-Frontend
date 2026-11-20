@@ -42,9 +42,9 @@ export function AuthLayout({ children }) {
             <Spotlight className="auth-spotlight" />
             <div className="auth-art-panel">
               <img
-                className="astro"
-                src="/assets/founderverse/astronaut-laptop.png"
-                alt="Soch2Startup platform illustration"
+                className="startup-illustration"
+                src="/assets/founderverse/startup-validation.svg"
+                alt="Startup founders reviewing an idea validation dashboard"
                 loading="lazy"
                 decoding="async"
               />
