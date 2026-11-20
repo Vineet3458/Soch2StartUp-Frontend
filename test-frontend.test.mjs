@@ -128,3 +128,38 @@ test("auth: ROLE_OPTS supports self-registerable roles", () => {
   const roleValues = auth.ROLE_OPTS.map(([value]) => value);
   assert.deepEqual(roleValues.sort(), ["entrepreneur", "industry_expert", "mentor"].sort());
 });
+
+const aceternityOut = path.resolve("node_modules/.cache/aceternity.test.mjs");
+await build({
+  entryPoints: ["src/components/aceternity/index.js"],
+  bundle: true,
+  format: "esm",
+  platform: "node",
+  outfile: aceternityOut,
+  loader: { ".jsx": "jsx" },
+  external: ["react", "react-dom", "react-router-dom", "lucide-react"],
+  logLevel: "silent"
+});
+const aceternity = await import(pathToFileURL(aceternityOut).href);
+
+test("aceternity: exports all required UI components cleanly", () => {
+  const expectedExports = [
+    "Spotlight",
+    "FlipWords",
+    "SpotlightCard",
+    "BentoGrid",
+    "BentoGridItem",
+    "InfiniteMovingCards",
+    "Meteors",
+    "ShimmerButton",
+    "GridBackground",
+    "TimelineSteps",
+  ];
+  for (const exp of expectedExports) {
+    assert.ok(aceternity[exp], `Missing aceternity export: ${exp}`);
+    assert.ok(
+      typeof aceternity[exp] === "function" || typeof aceternity[exp] === "object",
+      `${exp} should be a React component`
+    );
+  }
+});

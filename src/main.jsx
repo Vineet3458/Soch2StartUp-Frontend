@@ -7,6 +7,7 @@ import { ConfigProvider } from "./context/ConfigContext.jsx";
 import "./styles/theme.css";
 import "./styles/ui.css";
 import "./styles/app.css";
+import "./styles/aceternity.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
