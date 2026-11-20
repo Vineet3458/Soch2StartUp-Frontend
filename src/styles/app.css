@@ -888,7 +888,7 @@
 .auth-art-panel:hover {
   border-color: var(--border-strong);
 }
-.auth-art img.astro {
+.auth-art img.startup-illustration {
   width: 100%;
   height: auto;
   border-radius: var(--radius);
