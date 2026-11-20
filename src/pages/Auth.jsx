@@ -7,6 +7,7 @@ import { errMsg } from "../api/client.js";
 import { Alert, Button, Field } from "../components/ui.jsx";
 import { BrandMark } from "../components/Brand.jsx";
 import PublicNav from "../components/PublicNav.jsx";
+import { Spotlight, SpotlightCard } from "../components/aceternity/index.js";
 
 export const DEMO = [
   ["Founder", "entrepreneur@soch2startup.com", "Founder@123"],
@@ -37,7 +38,8 @@ export function AuthLayout({ children }) {
       <div className="pub"><PublicNav /></div>
       <main className="auth-page">
         <div className="auth-container">
-          <section className="auth-art" aria-label="Platform introduction">
+          <section className="auth-art" aria-label="Platform introduction" style={{ position: "relative", overflow: "hidden" }}>
+            <Spotlight className="auth-spotlight" />
             <div className="auth-art-panel">
               <img
                 className="astro"
@@ -104,7 +106,7 @@ export function Login() {
 
   return (
     <AuthLayout>
-      <form className="card auth-card glow-border" onSubmit={submit}>
+      <SpotlightCard as="form" className="card auth-card glow-border" onSubmit={submit}>
         <div className="row" style={{ marginBottom: 18 }}>
           <BrandMark size={44} />
           <div>
@@ -195,7 +197,7 @@ export function Login() {
             </div>
           </>
         )}
-      </form>
+      </SpotlightCard>
     </AuthLayout>
   );
 }
@@ -272,7 +274,7 @@ export function Register() {
 
   return (
     <AuthLayout>
-      <form className="card auth-card glow-border" onSubmit={submit}>
+      <SpotlightCard as="form" className="card auth-card glow-border" onSubmit={submit}>
         <div className="row" style={{ marginBottom: 18 }}>
           <BrandMark size={44} />
           <div>
@@ -383,7 +385,7 @@ export function Register() {
         <p className="muted center small mt">
           Already registered? <Link to="/login" state={loc.state}>Sign in</Link>
         </p>
-      </form>
+      </SpotlightCard>
     </AuthLayout>
   );
 }

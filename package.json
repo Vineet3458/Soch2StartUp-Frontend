@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "test": "node --test test-frontend.test.mjs"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@vitejs/plugin-react": "^4.3.2",
+    "esbuild": "^0.21.5",
     "eslint": "^9.39.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",

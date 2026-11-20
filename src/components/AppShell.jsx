@@ -9,6 +9,7 @@ import { ago, roleLabel } from "../lib/format.js";
 import { navFor, Overview, ROUTES } from "../views/registry.jsx";
 import { BrandMark, BrandName } from "./Brand.jsx";
 import { Avatar, Empty, Loader, useClickOutside } from "./ui.jsx";
+import { ShimmerButton } from "./aceternity/index.js";
 
 /* ── Sidebar ── */
 const matches = (to, loc) => {
@@ -142,7 +143,14 @@ export function PlatformBanner({ admin }) {
   );
 }
 
-const Blocked = ({ icon: I, title, text }) => <Empty icon={I} title={title}>{text}<div className="mt"><Link to="/app" className="btn">Back to dashboard</Link></div></Empty>;
+const Blocked = ({ icon: I, title, text }) => (
+  <Empty icon={I} title={title}>
+    {text}
+    <div className="mt">
+      <ShimmerButton to="/app" size="sm">Back to dashboard</ShimmerButton>
+    </div>
+  </Empty>
+);
 
 /* ── Shell ── */
 export default function AppShell() {
