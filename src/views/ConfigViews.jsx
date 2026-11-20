@@ -130,6 +130,13 @@ function Categories() {
   );
 }
 
+const MODEL_PRESETS = [
+  ["gpt", "GPT-4o mini", "openai/gpt-4o-mini", 1],
+  ["claude", "Claude 3.5 Haiku", "anthropic/claude-3.5-haiku", 1],
+  ["gemini", "Gemini 2.0 Flash", "google/gemini-2.0-flash-001", 1],
+  ["llama", "Llama 3.3 70B", "meta-llama/llama-3.3-70b-instruct", 0.75],
+];
+
 function Engine() {
   const c = useCfg("engine");
   const d = c.draft;
@@ -137,25 +144,80 @@ function Engine() {
   const [testing, setTesting] = useState(false);
   const run = async () => { setTesting(true); setTest(null); try { setTest((await api.post("/config/engine/test")).data); } catch (e) { toast.error(errMsg(e)); } setTesting(false); };
   const set = (p) => c.setDraft({ ...d, ...p });
+  const mode = d?.mode || "council";
+  const live = d?.liveData || {};
+  const setLive = (p) => set({ liveData: { ...live, ...p } });
+  const setModel = (i, patch) => set({ models: d.models.map((m, n) => (n === i ? { ...m, ...patch } : m)) });
+  const addModel = () => set({ models: [...(d.models || []), { id: `m${Date.now().toString(36)}`, name: "Custom model", provider: "openrouter", model: "", weight: 1, enabled: true }] });
+  const addPreset = () => {
+    const missing = MODEL_PRESETS.find(([id]) => !(d.models || []).some((m) => m.id === id));
+    if (!missing) return;
+    const [id, name, model, weight] = missing;
+    set({ models: [...(d.models || []), { id, name, provider: "openrouter", model, weight, enabled: true }] });
+  };
+  const orKey = c.extra?.openRouterKeyPresent;
   const key = c.extra?.geminiKeyPresent;
   return (
     <>
-      <PageHeader title="Validation engine" subtitle="Control which AI provider scores ideas and how it behaves." />
+      <PageHeader title="Validation engine" subtitle="Choose the prediction mode, the models in the council and the live web sources they learn from." />
       <Async q={c.q}>{() => d && (
         <div className="grid g-main">
           <Card>
             <Row title="Engine enabled" desc="Master switch for AI scoring."><Toggle label="Engine" checked={d.enabled} onChange={(v) => set({ enabled: v })} /></Row>
-            <div className="grid g2 mt"><Field label="Provider"><select className="input" value={d.provider} onChange={(e) => set({ provider: e.target.value })}><option value="gemini">Google Gemini</option><option value="demo">Built-in demo analysis</option></select></Field>
-              <Field label="Model"><input className="input" value={d.model} onChange={(e) => set({ model: e.target.value })} disabled={d.provider !== "gemini"} /></Field></div>
-            <Field label={`Creativity (temperature): ${d.temperature}`} className="mt"><Slider min={0} max={1} step={0.05} value={d.temperature} onChange={(v) => set({ temperature: v })} /></Field>
-            <Field label="Target market" className="mt"><input className="input" value={d.market} onChange={(e) => set({ market: e.target.value })} /></Field>
+            <Field label="Prediction mode" className="mt"><select className="input" value={mode} onChange={(e) => set({ mode: e.target.value })}>
+              <option value="council">Multi-model council + live data (recommended)</option>
+              <option value="single">Single model (Gemini only)</option>
+              <option value="demo">Built-in demo analysis (offline)</option>
+            </select></Field>
+            <div className="grid g2 mt"><Field label="Target market"><input className="input" value={d.market} onChange={(e) => set({ market: e.target.value })} /></Field>
+              <Field label={`Creativity (temperature): ${d.temperature}`}><Slider min={0} max={1} step={0.05} value={d.temperature} onChange={(v) => set({ temperature: v })} /></Field></div>
+
+            {mode === "council" && <>
+              <hr className="divider" />
+              <div className="row between mt"><div><b>Model council</b><div className="small muted">These models answer the same live-data-enriched prompt. Their scores are merged (extremes trimmed) into the final prediction.</div></div>
+                <div className="row gap-s"><Button size="sm" variant="outline" icon={Plus} onClick={addPreset}>Add preset</Button><Button size="sm" variant="ghost" icon={Plus} onClick={addModel}>Custom</Button></div></div>
+              <div className="col mt-s" style={{ gap: 10 }}>
+                {(d.models || []).map((m, i) => (
+                  <div key={m.id || i} className="row wrap" style={{ gap: 8, padding: 10, border: "1px solid var(--border)", borderRadius: 12 }}>
+                    <Toggle label={`${m.name} enabled`} checked={m.enabled} onChange={(v) => setModel(i, { enabled: v })} />
+                    <input className="input grow" style={{ minWidth: 120 }} value={m.name} onChange={(e) => setModel(i, { name: e.target.value })} maxLength={60} placeholder="Display name" />
+                    <select className="input" value={m.provider} onChange={(e) => setModel(i, { provider: e.target.value })}><option value="openrouter">OpenRouter</option><option value="gemini">Gemini (direct)</option></select>
+                    <input className="input grow" style={{ minWidth: 180 }} value={m.model} onChange={(e) => setModel(i, { model: e.target.value })} maxLength={100} placeholder="provider/model-id" />
+                    <input className="input" type="number" min={0} max={5} step={0.25} style={{ width: 78 }} value={m.weight} title="Weight" onChange={(e) => setModel(i, { weight: Number(e.target.value) })} />
+                    <button className="icon-btn" onClick={() => set({ models: d.models.filter((_, n) => n !== i) })} aria-label="Remove model" title="Remove"><Trash2 size={15} /></button>
+                  </div>
+                ))}
+                {!d.models?.length && <Alert kind="warning">Add at least two models to enable the council.</Alert>}
+              </div>
+              <hr className="divider" />
+              <Row title="Live market data" desc="Scrape current web + official-site signals before every prediction."><Toggle label="Live data" checked={Boolean(live.enabled)} onChange={(v) => setLive({ enabled: v })} /></Row>
+              {live.enabled && <div className="mt-s">
+                <div className="grid g3"><Field label="Max search results"><input className="input" type="number" min={1} max={20} value={live.maxResults ?? 8} onChange={(e) => setLive({ maxResults: Number(e.target.value) })} /></Field>
+                  <Field label="Official sites to read"><input className="input" type="number" min={0} max={8} value={live.maxPages ?? 3} onChange={(e) => setLive({ maxPages: Number(e.target.value) })} /></Field>
+                  <Field label="Fetch timeout (ms)"><input className="input" type="number" min={2000} max={20000} step={1000} value={live.timeoutMs ?? 8000} onChange={(e) => setLive({ timeoutMs: Number(e.target.value) })} /></Field></div>
+                <div className="row wrap mt-s" style={{ gap: 16 }}>{[["search", "Web search"], ["officialSites", "Official sites"]].map(([k, label]) => <label key={k} className="row small muted" style={{ gap: 6, cursor: "pointer" }}><input type="checkbox" className="check" checked={(live.sources || []).includes(k)} onChange={(e) => setLive({ sources: e.target.checked ? [...(live.sources || []), k] : (live.sources || []).filter((x) => x !== k) })} />{label}</label>)}
+                  <select className="input" style={{ maxWidth: 200 }} value={d.aggregation || "weighted"} onChange={(e) => set({ aggregation: e.target.value })}><option value="weighted">Weighted merge</option><option value="mean">Plain average</option><option value="median">Median</option></select></div>
+              </div>}
+            </>}
+            {mode === "single" && <><hr className="divider" /><div className="grid g2 mt"><Field label="Provider"><select className="input" value={d.provider} onChange={(e) => set({ provider: e.target.value })}><option value="gemini">Google Gemini</option><option value="demo">Built-in demo analysis</option></select></Field>
+              <Field label="Model"><input className="input" value={d.model} onChange={(e) => set({ model: e.target.value })} /></Field></div></>}
             <Row title="Fall back to demo analysis" desc="If the AI provider fails, still produce a report instead of an error."><Toggle label="Fallback" checked={d.fallbackToDemo} onChange={(v) => set({ fallbackToDemo: v })} /></Row>
             <SaveBar c={c} />
           </Card>
           <div className="col">
-            <Card title="Provider status" icon={Cpu}><div className="col"><div className="row between"><span>Gemini API key</span><Badge kind={key ? "success" : "warning"}>{key ? "Configured" : "Missing"}</Badge></div>{!key && <Alert kind="info">Add <code>GEMINI_API_KEY</code> to the backend <code>.env</code> to use Gemini. Until then the demo engine is used.</Alert>}</div></Card>
+            <Card title="Provider status" icon={Cpu}><div className="col">
+              <div className="row between"><span>OpenRouter key</span><Badge kind={orKey ? "success" : "warning"}>{orKey ? "Configured" : "Missing"}</Badge></div>
+              <div className="row between mt-s"><span>Gemini key</span><Badge kind={key ? "success" : "warning"}>{key ? "Configured" : "Missing"}</Badge></div>
+              <div className="row between mt-s"><span>Tavily / Serper (live search)</span><Badge kind={(c.extra?.tavilyKeyPresent || c.extra?.serperKeyPresent) ? "success" : "info"}>{(c.extra?.tavilyKeyPresent || c.extra?.serperKeyPresent) ? "Connected" : "Scraper fallback"}</Badge></div>
+              {!orKey && mode === "council" && <Alert kind="info">Add <code>OPENROUTER_API_KEY</code> to the backend <code>.env</code> to activate the council. One key unlocks GPT, Claude, Gemini and Llama. Until then the demo engine is used.</Alert>}
+            </div></Card>
             <Card title="Test run" icon={Zap}><p className="small muted mb">Analyses a sample idea with the <b>saved</b> settings (nothing is stored).</p><Button icon={Zap} loading={testing} onClick={run}>Run test</Button>
-              {test && <div className="callout mt"><div className="row between"><b>Result</b><Badge kind={test.source === "gemini" ? "success" : "demo"}>{test.source}</Badge></div><div className="small muted mt-s">Score {test.score} ({test.verdict}) · {test.ms} ms</div></div>}</Card>
+              {test && <div className="callout mt">
+                <div className="row between"><b>Result</b><Badge kind={test.source === "council" ? "success" : test.source === "gemini" ? "primary" : "demo"}>{test.source}</Badge></div>
+                <div className="small muted mt-s">Score {test.score} ({test.verdict}) · {test.ms} ms{mode === "council" && <> · {test.modelsUsed} model{test.modelsUsed === 1 ? "" : "s"} · {test.liveSources} live sources · confidence {test.confidence ?? "—"}</>}</div>
+                {test.failedModels?.length > 0 && <div className="small muted mt-s">Failed: {test.failedModels.map((m) => m.name).join(", ")}</div>}
+                {test.liveErrors?.length > 0 && <div className="small muted mt-s">Live data: {test.liveErrors.join(" · ")}</div>}
+              </div>}</Card>
           </div>
         </div>)}</Async>
     </>
@@ -210,6 +272,8 @@ function Integrations() {
       <Async q={c.q}>{() => d && (
         <div className="grid g2">
           <Card title="Google Gemini" icon={Cpu}><div className="row between"><span className="muted small">Server-side API key</span><Badge kind={c.extra?.geminiKeyPresent ? "success" : "warning"}>{c.extra?.geminiKeyPresent ? "Connected" : "Not configured"}</Badge></div><p className="small muted mt-s">The key is stored in the backend <code>.env</code> and never sent to the browser. Configure the model under <b>Validation engine</b>.</p></Card>
+          <Card title="OpenRouter (multi-model council)" icon={Cpu}><div className="row between"><span className="muted small">Server-side API key</span><Badge kind={c.extra?.openRouterKeyPresent ? "success" : "warning"}>{c.extra?.openRouterKeyPresent ? "Connected" : "Not configured"}</Badge></div><p className="small muted mt-s">One key from <code>openrouter.ai/keys</code> unlocks GPT, Claude, Gemini and Llama for the prediction council. Set <code>OPENROUTER_API_KEY</code> in the backend <code>.env</code>.</p></Card>
+          <Card title="Live web search" icon={Zap}><div className="col gap-s"><div className="row between"><span className="muted small">Tavily</span><Badge kind={c.extra?.tavilyKeyPresent ? "success" : "info"}>{c.extra?.tavilyKeyPresent ? "Connected" : "Optional"}</Badge></div><div className="row between"><span className="muted small">Serper</span><Badge kind={c.extra?.serperKeyPresent ? "success" : "info"}>{c.extra?.serperKeyPresent ? "Connected" : "Optional"}</Badge></div></div><p className="small muted mt-s">Optional keys give cleaner search results. Without them the collector still works using DuckDuckGo and direct official-site scraping.</p></Card>
           <Card title="Outgoing webhook" icon={Plug}>
             <Row title="Enabled" desc="POSTs a JSON event whenever the selected things happen."><Toggle label="Webhook enabled" checked={w.enabled} onChange={(v) => setW({ enabled: v })} /></Row>
             <Field label="Endpoint URL" className="mt"><input className="input" placeholder="https://hooks.example.com/soch2startup" value={w.url} onChange={(e) => setW({ url: e.target.value })} /></Field>

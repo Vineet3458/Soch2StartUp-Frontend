@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Calendar, CheckCircle2, Cpu, Download, FileText, MessageSquare, Printer, Star } from "lucide-react";
+import { AlertTriangle, Calendar, CheckCircle2, Cpu, Download, FileText, Globe, MessageSquare, Printer, Star, Users } from "lucide-react";
 import api from "../api/client.js";
 import { act, useLive } from "../lib/live.js";
 import { ago, fmtDate, roleLabel, scoreColor } from "../lib/format.js";
@@ -35,6 +35,9 @@ export function IdeaCard({ idea, selected, onSelect, actions }) {
 export function ReportBody({ idea, compact }) {
   const r = idea.report;
   if (!r) return <Card><p className="muted">This idea has no validation report yet. {idea.status === "draft" && "Submit the draft to generate one."}</p></Card>;
+  const isCouncil = r.source === "council";
+  const sourceLabel = isCouncil ? `${r.models?.length || "Multi"}-model council` : r.source === "gemini" ? "Gemini AI" : "Demo engine";
+  const sourceKind = isCouncil ? "success" : r.source === "gemini" ? "primary" : "demo";
   const dl = () => { const b = new Blob([JSON.stringify({ title: idea.title, industry: idea.industry, report: r }, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${idea.title.replace(/\W+/g, "-")}-report.json`; a.click(); };
   return (
     <div className="col gap-l stagger">
@@ -42,13 +45,31 @@ export function ReportBody({ idea, compact }) {
         <div className="report-hero">
           <ScoreRing score={r.score} size={170} stroke={14} label="VALIDATION" />
           <div className="col" style={{ gap: 10 }}>
-            <div className="row wrap" style={{ gap: 10 }}><VerdictBadge verdict={r.verdict} /><Badge kind={r.source === "gemini" ? "primary" : "demo"}><Cpu size={12} /> {r.source === "gemini" ? "Gemini AI" : "Demo engine"}</Badge><span className="tiny faint">Generated {ago(r.generatedAt || idea.updatedAt)}</span></div>
+            <div className="row wrap" style={{ gap: 10 }}><VerdictBadge verdict={r.verdict} /><Badge kind={sourceKind}><Cpu size={12} /> {sourceLabel}</Badge>{isCouncil && r.confidence != null && <Badge kind="info">{r.confidence}% confidence</Badge>}<span className="tiny faint">Generated {ago(r.generatedAt || idea.updatedAt)}</span></div>
             <h2 style={{ fontSize: 26 }}>{idea.title}</h2>
             <p className="muted">{r.verdict === "GO" ? "Strong potential. Validate with real customers and move to MVP." : r.verdict === "IMPROVE" ? "Promising, but strengthen the weak areas before investing heavily." : "High risk in its current form. Reconsider the concept or narrow your focus."}</p>
             {!compact && <div className="row wrap no-print"><Button variant="outline" size="sm" icon={Printer} onClick={() => window.print()}>Print / PDF</Button><Button variant="outline" size="sm" icon={Download} onClick={dl}>Download JSON</Button></div>}
           </div>
         </div>
       </Card>
+      {isCouncil && <Card title="Prediction council" icon={Users} sub={`${r.confidence ?? "—"}% confidence · ${r.consensus?.modelsUsed ?? r.models?.length ?? 0} models`}>
+        <div className="col" style={{ gap: 8 }}>
+          {(r.models || []).map((m) => <div key={m.id || m.name} className="row between small" style={{ gap: 12 }}>
+            <div className="grow"><b>{m.name}</b><div className="tiny faint">{m.provider} · {m.model}</div></div>
+            <span className="mono">{m.score}</span><VerdictBadge verdict={m.verdict} /><span className="tiny faint">×{m.weight}</span><span className="tiny faint">{m.ms} ms</span>
+          </div>)}
+        </div>
+        {r.failedModels?.length > 0 && <p className="small muted mt-s">Unavailable for this run: {r.failedModels.map((m) => m.name).join(", ")}</p>}
+      </Card>}
+      {r.liveData?.sources?.length > 0 && <Card title="Live market signals" icon={Globe} sub={`${r.liveData.sources.length} sources via ${r.liveData.mode} · ${ago(r.liveData.collectedAt)}`}>
+        <div className="col" style={{ gap: 10 }}>
+          {r.liveData.sources.slice(0, 8).map((s, i) => <div key={i} className="row" style={{ alignItems: "flex-start", gap: 10 }}>
+            <Badge kind={s.kind === "officialSite" ? "primary" : "info"}>{s.kind === "officialSite" ? "Site" : "Web"}</Badge>
+            <div className="grow"><a href={s.url} target="_blank" rel="noreferrer" className="small">{s.title || s.domain}</a><div className="tiny faint">{s.domain}{s.snippet ? ` — ${s.snippet.slice(0, 180)}` : ""}</div></div>
+          </div>)}
+        </div>
+        {r.liveData.errors?.length > 0 && <p className="small muted mt-s">Some sources were unavailable: {r.liveData.errors.join(" · ")}</p>}
+      </Card>}
       <div className="grid g2">
         <Card title="Score breakdown" icon={Star}><MetricBars metrics={r.metrics} /></Card>
         <Card title="Strength profile" icon={Star}><RadarMetrics series={[{ name: "This idea", metrics: r.metrics, color: "var(--primary)" }]} height={250} /></Card>

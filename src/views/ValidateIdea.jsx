@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Loader2, Save, Sparkles } from "lucide-react";
+import { CheckCircle2, Globe, Loader2, Save, Sparkles } from "lucide-react";
 import api, { errMsg } from "../api/client.js";
 import { useConfig } from "../context/ConfigContext.jsx";
 import { invalidate, useLive } from "../lib/live.js";
 import { toast } from "../lib/toast.js";
-import { Alert, Button, Card, Field, PageHeader } from "../components/ui.jsx";
+import { Alert, Badge, Button, Card, Field, PageHeader } from "../components/ui.jsx";
 
 const BUDGETS = ["Under ₹1 lakh", "₹1–10 lakh", "Above ₹10 lakh"];
 const TEAMS = ["Solo founder", "2–3 members", "4+ members"];
-const STEPS = ["Reading your idea", "Sizing the market", "Mapping competitors", "Scoring feasibility & finances", "Assessing risks", "Writing your report"];
+const STEPS = ["Reading your idea", "Fetching live market signals", "Sizing the market & competitors", "Combining model predictions", "Scoring feasibility & finances", "Writing your report"];
 
 export default function ValidateIdea() {
   const nav = useNavigate();
@@ -22,7 +22,15 @@ export default function ValidateIdea() {
   const [busy, setBusy] = useState(null); // "draft" | "submit"
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
+  const [live, setLive] = useState(null);
+  const [liveBusy, setLiveBusy] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const fetchLive = async () => {
+    setLiveBusy(true); setLive(null);
+    try { setLive((await api.post("/live-data/preview", { title: form.title, description: form.description, industry: form.industry })).data); }
+    catch (e) { toast.error(errMsg(e)); }
+    setLiveBusy(false);
+  };
 
   useEffect(() => { if (!form.industry && cats.length) setForm((f) => ({ ...f, industry: cats[0].name })); }, [cats.length]);
   const editLive = useLive(editId ? `/ideas/${editId}` : null);
@@ -86,6 +94,18 @@ export default function ValidateIdea() {
           </div>
         </Card>
         <div className="col">
+          <Card title="Live market signals" icon={Globe} sub="What the AI council will see">
+            <p className="small muted">Scan current web results and official sites for your idea before you submit.</p>
+            <Button variant="outline" size="sm" icon={Globe} className="mt-s" loading={liveBusy} disabled={form.title.trim().length < 3} onClick={fetchLive}>Fetch live signals</Button>
+            {live && <div className="mt-s">
+              <div className="row wrap gap-s"><Badge kind="primary">{live.sources?.length || 0} sources</Badge><Badge kind="info">{live.mode}</Badge>{live.sources?.length > 0 && <span className="tiny faint">{new Date(live.collectedAt).toLocaleTimeString()}</span>}</div>
+              <div className="col mt-s" style={{ gap: 8 }}>
+                {(live.sources || []).slice(0, 3).map((s, i) => <div key={i} className="tiny"><a href={s.url} target="_blank" rel="noreferrer">{s.title || s.domain}</a><div className="faint">{s.domain}{s.snippet ? ` — ${s.snippet.slice(0, 120)}` : ""}</div></div>)}
+                {!live.sources?.length && <span className="small muted">No live sources were found — the report will fall back to the idea details.</span>}
+              </div>
+              {live.errors?.length > 0 && <div className="tiny faint mt-s">{live.errors.join(" · ")}</div>}
+            </div>}
+          </Card>
           <Card title="Tips for a high score" icon={Sparkles}>
             <ul className="col muted small" style={{ paddingLeft: 18, margin: 0, gap: 10 }}>
               <li>Name a specific customer segment, not “everyone”.</li>
