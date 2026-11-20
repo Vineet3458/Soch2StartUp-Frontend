@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Flag, Lightbulb, Plus, Printer, Save, Sparkles, Trash2, Wand2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Flag, Lightbulb, Plus, Printer, Save, Trash2, Wand2 } from "lucide-react";
 import api from "../api/client.js";
 import { act } from "../lib/live.js";
 import { fmtDate } from "../lib/format.js";
@@ -80,7 +80,6 @@ function Roadmap() {
                     <button className="icon-btn" style={{ width: 30, height: 30 }} onClick={async () => { if (await confirmDialog({ title: "Remove milestone?", message: m.title, danger: true, confirmText: "Remove" })) save(rm.filter((x) => x._id !== m._id), "Milestone removed"); }} aria-label="Delete"><Trash2 size={14} /></button></div></div>))}
               {!rm.some((m) => m.status === k) && <p className="tiny faint center" style={{ padding: 20 }}>Nothing here</p>}</div>))}</div>
         </div>)}</Async>
-      <span className="sr-only"><Sparkles /></span>
     </>
   );
 }

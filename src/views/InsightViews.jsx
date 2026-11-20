@@ -65,14 +65,13 @@ function Competitors() {
 }
 
 function SwotPage() {
-  const { ideas, idea, picker, q } = useIdeaPicker({ needReport: true });
+  const { idea, picker, q } = useIdeaPicker({ needReport: true });
   return (
     <>
       <PageHeader title="SWOT analysis" subtitle="Strengths, weaknesses, opportunities and threats for the selected idea.">{picker}</PageHeader>
       <Async q={q}>{() => !idea ? <NoIdeas /> : (
         <div className="col gap-l stagger"><Card title={idea.title}><Swot swot={idea.report.swot} /></Card>
           <div className="grid g2"><ListCard title="Risks to manage" items={idea.report.risks} tone="var(--danger)" /><ListCard title="Recommended next steps" items={idea.report.recommendations} tone="var(--success)" /></div></div>)}</Async>
-      {ideas.length > 0 && <span className="sr-only">{ideas.length} ideas</span>}
     </>
   );
 }

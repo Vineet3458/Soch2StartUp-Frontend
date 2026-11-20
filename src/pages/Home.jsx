@@ -134,7 +134,6 @@ export default function Home() {
                 )}
               </div>
             </div>
-
             {/* ═══ Hero Interactive Mockup with SpotlightCard & 3D Tilt ═══ */}
             <div className="hero-visual" style={{ position: "relative", zIndex: 3 }}>
               <Tilt max={6} scale={1.01}>

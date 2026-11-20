@@ -12,14 +12,12 @@
   --radius-lg: 14px;
   --radius-pill: 999px;
 
-  --ease: cubic-bezier(.16, 1, .3, 1);
   --sidebar-w: 260px;
 }
 
 :root, [data-theme="dark"] {
   color-scheme: dark;
   --bg: #000000;
-  --bg-2: #0A0A0A;
   --surface: #0A0A0A;
   --surface-2: #111111;
   --surface-solid: #0A0A0A;
@@ -32,7 +30,6 @@
   --faint: #6B6B6B;
 
   --primary: #0070F3;
-  --primary-2: #0070F3;
   --accent: #50E3C2;
 
   --success: #50E3C2;
@@ -40,19 +37,14 @@
   --danger: #FF4D4D;
   --info: #0070F3;
 
-  --grad: var(--primary);
-  --grad-warm: var(--warning);
-
   --input-bg: #000000;
   --chart-grid: #1F1F1F;
-  --shadow: none;
   --glow: 0 30px 80px -30px rgba(0, 112, 243, .22);
 }
 
 [data-theme="light"] {
   color-scheme: light;
   --bg: #FFFFFF;
-  --bg-2: #FAFAFA;
   --surface: #FAFAFA;
   --surface-2: #F2F2F2;
   --surface-solid: #FFFFFF;
@@ -65,7 +57,6 @@
   --faint: #8F8F8F;
 
   --primary: #0068D6;
-  --primary-2: #0068D6;
   --accent: #067A6A;
 
   --success: #067A6A;
@@ -73,12 +64,8 @@
   --danger: #D6001C;
   --info: #0068D6;
 
-  --grad: var(--primary);
-  --grad-warm: var(--warning);
-
   --input-bg: #FFFFFF;
   --chart-grid: #EAEAEA;
-  --shadow: none;
   --glow: 0 30px 80px -30px rgba(0, 104, 214, .18);
 }
 
@@ -141,8 +128,6 @@ code, pre, kbd, samp { font-family: var(--font-mono); }
 
 /* ═══ Motion utilities (subtle 150ms transitions, no cosmic animations) ═══ */
 .reveal { opacity: 1; }
-.reveal.in { opacity: 1; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes marquee { to { transform: translateX(-50%); } }
