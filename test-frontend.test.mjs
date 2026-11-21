@@ -1,9 +1,9 @@
 // Run with: npm test
 // Guards the bug class that plagued the old site: sidebar links that lead nowhere or to the wrong role's page.
-import test from "node:test";
+import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { build } from "esbuild";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, rmSync, existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import * as React from "react";
@@ -662,6 +662,18 @@ test("moderator workspace: aceternity CSS includes moderator hero, queue banner,
   assert.ok(css.includes(".flip-rose"), "missing .flip-rose text gradient");
   assert.ok(css.includes(".moderator-modal-preview"), "missing .moderator-modal-preview");
 });
+
+after(() => {
+  try {
+    const cacheDir = path.resolve("node_modules/.cache");
+    if (existsSync(cacheDir)) {
+      rmSync(cacheDir, { recursive: true, force: true });
+    }
+  } catch (err) {
+    void err;
+  }
+});
+
 
 
 

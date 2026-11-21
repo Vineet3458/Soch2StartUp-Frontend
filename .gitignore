@@ -8,11 +8,7 @@ dist/
 dist-ssr/
 
 # Environment variables & local secrets
-.env
-.env.local
 .env.*.local
-.env.production
-.env.staging
 
 # Vite & build caches
 .vite/
@@ -30,7 +26,6 @@ pnpm-debug.log*
 coverage/
 
 # IDE & Editor artifacts
-.vscode/
 .idea/
 *.suo
 *.ntvs*
@@ -41,3 +36,4 @@ coverage/
 # OS artifacts
 .DS_Store
 Thumbs.db
+config.bat
