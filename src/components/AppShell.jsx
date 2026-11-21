@@ -9,7 +9,7 @@ import { ago, roleLabel } from "../lib/format.js";
 import { navFor, Overview, ROUTES } from "../views/registry.jsx";
 import { BrandMark, BrandName } from "./Brand.jsx";
 import { Avatar, Empty, Loader, useClickOutside } from "./ui.jsx";
-import { ShimmerButton, SpotlightCard } from "./aceternity/index.js";
+import { MovingBorder, ShimmerButton, SpotlightCard } from "./aceternity/index.js";
 
 /* ── Sidebar ── */
 const matches = (to, loc) => {

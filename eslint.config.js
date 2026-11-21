@@ -16,6 +16,7 @@ export default [
     plugins: { react, "react-hooks": hooks },
     settings: { react: { version: "18" } },
     rules: {
+      "no-undef": "error",
       "react/jsx-uses-vars": "error", "react/jsx-uses-react": "off",
       "no-unused-vars": ["warn", { varsIgnorePattern: "^_", argsIgnorePattern: "^_", caughtErrors: "none" }],
       "react-hooks/rules-of-hooks": "error", "react-hooks/exhaustive-deps": "off",
