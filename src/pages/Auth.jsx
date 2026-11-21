@@ -10,18 +10,34 @@ import PublicNav from "../components/PublicNav.jsx";
 import { Spotlight, SpotlightCard } from "../components/aceternity/index.js";
 
 export const DEMO = [
-  ["Founder", "entrepreneur@soch2startup.com", "Founder@123"],
-  ["Mentor", "mentor@soch2startup.com", "Mentor@123"],
-  ["Expert", "expert@soch2startup.com", "Expert@123"],
-  ["Moderator", "moderator@soch2startup.com", "Moderator@123"],
-  ["Admin", "admin@soch2startup.com", "Admin@12345"],
-  ["Superadmin", "superadmin@soch2startup.com", "Admin@12345"],
+  ["Founder", "entrepreneur@soch2startup.com", "S2S#Founder!2026"],
+  ["Mentor", "mentor@soch2startup.com", "S2S#Mentor!2026"],
+  ["Expert", "expert@soch2startup.com", "S2S#Expert!2026"],
+  ["Moderator", "moderator@soch2startup.com", "S2S#Moderator!2026"],
+  ["Admin", "admin@soch2startup.com", "S2S#Admin!2026"],
+  ["Superadmin", "superadmin@soch2startup.com", "S2S#SuperAdmin!2026"],
 ];
+
+export const BREACHED_PASSWORDS = new Set([
+  "password", "password12", "password123", "password1234", "password12345", "password@123", "pass@1234",
+  "12345678", "123456789", "1234567890", "12345678a", "12345678b", "123456789a",
+  "admin123", "admin1234", "admin12345", "admin123456", "admin@123", "admin@1234", "admin@12345", "administrator",
+  "superadmin123", "superadmin@123", "superadmin@12345",
+  "founder123", "founder@123", "founder@1234", "founder@12345",
+  "mentor123", "mentor@123", "mentor@1234", "mentor@12345",
+  "expert123", "expert@123", "expert@1234", "expert@12345",
+  "moderator123", "moderator@123", "moderator@1234", "moderator@12345",
+  "qwerty123", "qwertyuiop", "welcome123", "welcome@123", "welcome1234", "letmein123",
+  "iloveyou123", "pass1234", "changeme123", "changeme@123", "soch2startup123", "startup123", "startup@123"
+]);
 
 export const isEmailValid = (email) => /^\S+@\S+\.\S+$/.test(email);
 
 export const isPasswordValid = (pw) =>
   typeof pw === "string" && pw.length >= 8 && pw.length <= 128 && /[A-Za-z]/.test(pw) && /[0-9]/.test(pw);
+
+export const isBreachedPassword = (pw) =>
+  typeof pw === "string" && BREACHED_PASSWORDS.has(pw.toLowerCase().trim());
 
 export const getSafeRedirect = (from) => {
   if (typeof from !== "string" || !from.startsWith("/") || from.startsWith("//") || from.includes("\\")) return "/app";
@@ -257,6 +273,10 @@ export function Register() {
       setError("Password must contain at least one letter and one number");
       return;
     }
+    if (BREACHED_PASSWORDS.has(form.password.toLowerCase().trim())) {
+      setError("This password is known to be compromised in data breaches. Please choose a more secure password.");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
@@ -351,7 +371,7 @@ export function Register() {
               />
             </div>
           </Field>
-          <Field label="Password" hint="At least 6 characters" htmlFor="register-password">
+          <Field label="Password" hint="At least 8 characters with letters & numbers" htmlFor="register-password">
             <div className="input-icon">
               <Lock size={17} />
               <input
@@ -359,7 +379,8 @@ export function Register() {
                 className="input"
                 type={show ? "text" : "password"}
                 autoComplete="new-password"
-                minLength={6}
+                minLength={8}
+                maxLength={128}
                 placeholder="••••••••"
                 value={form.password}
                 disabled={busy}

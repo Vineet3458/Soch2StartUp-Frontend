@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { Bell, CheckCheck, ChevronRight, LogOut, Megaphone, Menu, Moon, Sun, User as UserIcon, Settings, Wrench, Lock, SearchX } from "lucide-react";
+import { Bell, CheckCheck, ChevronRight, LogOut, Megaphone, Menu, Moon, Sun, User as UserIcon, Settings, Wrench, Lock, SearchX, SlidersHorizontal, Sparkles, ShieldAlert } from "lucide-react";
 import api from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
@@ -9,7 +9,7 @@ import { ago, roleLabel } from "../lib/format.js";
 import { navFor, Overview, ROUTES } from "../views/registry.jsx";
 import { BrandMark, BrandName } from "./Brand.jsx";
 import { Avatar, Empty, Loader, useClickOutside } from "./ui.jsx";
-import { ShimmerButton } from "./aceternity/index.js";
+import { ShimmerButton, SpotlightCard } from "./aceternity/index.js";
 
 /* ── Sidebar ── */
 const matches = (to, loc) => {
@@ -35,7 +35,9 @@ function Sidebar({ open, onClose }) {
       <div className={`sb-overlay ${open ? "open" : ""}`} onClick={onClose} />
       <aside className={`sidebar ${open ? "open" : ""}`} aria-label="Main navigation">
         <Link to="/" className="sb-brand"><BrandMark /><BrandName name={cfg.platform.name} /></Link>
-        <div className="role-card"><Avatar name={user.name} size={40} /><div className="grow"><div className="t truncate">{user.name}</div><div className="s truncate">{nav.card.sub}</div></div><CardIcon size={18} color="var(--primary)" /></div>
+        <SpotlightCard className={`role-card ${user.role === "superadmin" ? "superadmin-role-card" : ""}`} spotlightColor={user.role === "superadmin" ? "rgba(168, 85, 247, 0.32)" : user.role === "admin" ? "rgba(0, 112, 243, 0.22)" : user.role === "moderator" ? "rgba(244, 63, 94, 0.22)" : user.role === "industry_expert" ? "rgba(245, 166, 35, 0.24)" : "rgba(168, 85, 247, 0.16)"}>
+          <Avatar name={user.name} size={40} /><div className="grow"><div className="t truncate">{user.name}</div><div className="s truncate" style={{ display: "flex", alignItems: "center", gap: 6 }}>{nav.card.sub}{user.role === "superadmin" && <span className="superadmin-root-pill">ROOT</span>}</div></div><CardIcon size={18} color={user.role === "superadmin" ? "#c084fc" : "var(--primary)"} />
+        </SpotlightCard>
         <nav className="sb-scroll">
           {nav.sections.map((s) => {
             const items = s.items.filter(visible);
@@ -175,6 +177,45 @@ export default function AppShell() {
         <header className="topbar">
           <button className="icon-btn mobile-only" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20} /></button>
           <div className="grow"><div className="tiny faint hide-m">{cfg.platform.name}</div><b style={{ fontFamily: "var(--font-display)", fontSize: 17 }}>{title || "Dashboard"}</b></div>
+          {user.role === "superadmin" && (
+            <MovingBorder
+              as="div"
+              containerClassName="superadmin-root-halo hide-m"
+              duration={7000}
+            >
+              <span className="superadmin-root-badge" title="Root administrative access active">
+                <i className="root-dot" />
+                ROOT &bull; SUPERADMIN
+              </span>
+            </MovingBorder>
+          )}
+          {user.role === "admin" && (
+            <span className="live-pulse-badge hide-m" title="Administrative workspace active">
+              <i className="live-pulse-dot" />
+              ADMIN
+            </span>
+          )}
+          {user.role === "moderator" && (
+            <span className="live-pulse-badge hide-m" title="Community Safety workspace active">
+              <i className="live-pulse-dot pulse-danger" />
+              MODERATOR
+            </span>
+          )}
+          {user.role === "superadmin" && (
+            <ShimmerButton to="/app/platform" size="sm" variant="shimmer" className="admin-quick-action hide-m">
+              <SlidersHorizontal size={13} style={{ marginRight: 6 }} /> System Config
+            </ShimmerButton>
+          )}
+          {user.role === "admin" && (
+            <ShimmerButton to="/app/ideas?s=review" size="sm" variant="outline" className="admin-quick-action hide-m">
+              <Sparkles size={13} style={{ marginRight: 6 }} /> Review Queue
+            </ShimmerButton>
+          )}
+          {user.role === "moderator" && (
+            <ShimmerButton to="/app/mod-ideas" size="sm" variant="outline" className="admin-quick-action hide-m">
+              <ShieldAlert size={13} style={{ marginRight: 6 }} /> Moderation Queue
+            </ShimmerButton>
+          )}
           <LivePill />
           <button className="icon-btn" onClick={() => cfg.setTheme(cfg.theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">{cfg.theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}</button>
           <Bell_ />

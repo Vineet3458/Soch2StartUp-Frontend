@@ -6,11 +6,19 @@ import { act, useLive } from "../lib/live.js";
 import { ago, fmtDate, roleLabel, scoreColor } from "../lib/format.js";
 import { Avatar, Badge, Button, Card, Field, Modal, StatusBadge, VerdictBadge } from "./ui.jsx";
 import { MetricBars, RadarMetrics, ScoreRing } from "./charts.jsx";
+import { Spotlight, SpotlightCard, BentoGrid } from "./aceternity/index.js";
 
 export function IdeaCard({ idea, selected, onSelect, actions }) {
   const r = idea.report;
+  const spotlightColor = r?.verdict === "GO"
+    ? "rgba(34, 197, 94, 0.18)"
+    : r?.verdict === "IMPROVE"
+    ? "rgba(6, 182, 212, 0.18)"
+    : r?.verdict === "AVOID"
+    ? "rgba(239, 68, 68, 0.18)"
+    : "rgba(168, 85, 247, 0.16)";
   return (
-    <Card hover className={`idea-card ${selected ? "glow-border" : ""}`}>
+    <Card hover spotlight spotlightColor={spotlightColor} className={`idea-card ${selected ? "glow-border" : ""}`}>
       <div className="row between" style={{ alignItems: "flex-start" }}>
         <div className="col gap-s grow" style={{ gap: 8 }}>
           <div className="row wrap gap-s"><StatusBadge value={idea.status} /><Badge kind="primary">{idea.industry}</Badge>{idea.flagged && <Badge kind="danger"><AlertTriangle size={12} /> Flagged</Badge>}</div>
@@ -34,15 +42,41 @@ export function IdeaCard({ idea, selected, onSelect, actions }) {
 
 export function ReportBody({ idea, compact }) {
   const r = idea.report;
-  if (!r) return <Card><p className="muted">This idea has no validation report yet. {idea.status === "draft" && "Submit the draft to generate one."}</p></Card>;
-  const isCouncil = r.source === "council";
+  if (!r) {
+    return (
+      <Card spotlight spotlightColor="rgba(0, 112, 243, 0.16)">
+        <div className="center" style={{ padding: "32px 16px" }}>
+          <div className="ai-orb" style={{ margin: "0 auto 20px", width: 48, height: 48 }} />
+          <h3 style={{ margin: "0 0 8px" }}>Validation Report Pending</h3>
+          <p className="muted small" style={{ maxWidth: 440, margin: "0 auto 20px" }}>
+            {idea.status === "draft"
+              ? "This idea is in draft mode. Submit it to run our AI multi-model council across market demand, moat, and execution risk."
+              : "This idea has no AI validation report generated yet."}
+          </p>
+          {idea.status === "draft" && (
+            <Link to={`/app/validate?edit=${idea._id}`} className="aceternity-btn aceternity-btn-shimmer aceternity-btn-sm" style={{ textDecoration: "none" }}>
+              <span className="aceternity-btn-border-spark" aria-hidden="true" />
+              <span className="aceternity-btn-inner">Validate Idea with AI &rarr;</span>
+            </Link>
+          )}
+        </div>
+      </Card>
+    );
+  }
+  const isCouncil = r.source === "council" || Boolean(r.models && r.models.length > 0);
   const sourceLabel = isCouncil ? `${r.models?.length || "Multi"}-model council` : r.source === "gemini" ? "Gemini AI" : "Demo engine";
   const sourceKind = isCouncil ? "success" : r.source === "gemini" ? "primary" : "demo";
   const dl = () => { const b = new Blob([JSON.stringify({ title: idea.title, industry: idea.industry, report: r }, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${idea.title.replace(/\W+/g, "-")}-report.json`; a.click(); };
   return (
     <div className="col gap-l stagger">
-      <Card className="glow-border">
-        <div className="report-hero">
+      <Card
+        className="glow-border"
+        spotlight
+        spotlightColor={r.verdict === "GO" ? "rgba(34, 197, 94, 0.20)" : r.verdict === "IMPROVE" ? "rgba(6, 182, 212, 0.20)" : "rgba(239, 68, 68, 0.20)"}
+        style={{ position: "relative", overflow: "hidden" }}
+      >
+        <Spotlight className="report-hero-spotlight" fill={r.verdict === "GO" ? "var(--success)" : "var(--primary)"} />
+        <div className="report-hero" style={{ position: "relative", zIndex: 2 }}>
           <ScoreRing score={r.score} size={170} stroke={14} label="VALIDATION" />
           <div className="col" style={{ gap: 10 }}>
             <div className="row wrap" style={{ gap: 10 }}><VerdictBadge verdict={r.verdict} /><Badge kind={sourceKind}><Cpu size={12} /> {sourceLabel}</Badge>{isCouncil && r.confidence != null && <Badge kind="info">{r.confidence}% confidence</Badge>}<span className="tiny faint">Generated {ago(r.generatedAt || idea.updatedAt)}</span></div>
@@ -52,7 +86,7 @@ export function ReportBody({ idea, compact }) {
           </div>
         </div>
       </Card>
-      {isCouncil && <Card title="Prediction council" icon={Users} sub={`${r.confidence ?? "—"}% confidence · ${r.consensus?.modelsUsed ?? r.models?.length ?? 0} models`}>
+      {isCouncil && <Card title="Prediction council" icon={Users} spotlight spotlightColor="rgba(168, 85, 247, 0.18)" sub={`${r.confidence ?? "—"}% confidence · ${r.consensus?.modelsUsed ?? r.models?.length ?? 0} models`}>
         <div className="col" style={{ gap: 8 }}>
           {(r.models || []).map((m) => <div key={m.id || m.name} className="row between small" style={{ gap: 12 }}>
             <div className="grow"><b>{m.name}</b><div className="tiny faint">{m.provider} · {m.model}</div></div>
@@ -61,7 +95,7 @@ export function ReportBody({ idea, compact }) {
         </div>
         {r.failedModels?.length > 0 && <p className="small muted mt-s">Unavailable for this run: {r.failedModels.map((m) => m.name).join(", ")}</p>}
       </Card>}
-      {r.liveData?.sources?.length > 0 && <Card title="Live market signals" icon={Globe} sub={`${r.liveData.sources.length} sources via ${r.liveData.mode} · ${ago(r.liveData.collectedAt)}`}>
+      {r.liveData?.sources?.length > 0 && <Card title="Live market signals" icon={Globe} spotlight spotlightColor="rgba(6, 182, 212, 0.18)" sub={`${r.liveData.sources.length} sources via ${r.liveData.mode} · ${ago(r.liveData.collectedAt)}`}>
         <div className="col" style={{ gap: 10 }}>
           {r.liveData.sources.slice(0, 8).map((s, i) => <div key={i} className="row" style={{ alignItems: "flex-start", gap: 10 }}>
             <Badge kind={s.kind === "officialSite" ? "primary" : "info"}>{s.kind === "officialSite" ? "Site" : "Web"}</Badge>
@@ -71,32 +105,62 @@ export function ReportBody({ idea, compact }) {
         {r.liveData.errors?.length > 0 && <p className="small muted mt-s">Some sources were unavailable: {r.liveData.errors.join(" · ")}</p>}
       </Card>}
       <div className="grid g2">
-        <Card title="Score breakdown" icon={Star}><MetricBars metrics={r.metrics} /></Card>
-        <Card title="Strength profile" icon={Star}><RadarMetrics series={[{ name: "This idea", metrics: r.metrics, color: "var(--primary)" }]} height={250} /></Card>
+        <Card title="Score breakdown" icon={Star} spotlight spotlightColor="rgba(0, 112, 243, 0.16)"><MetricBars metrics={r.metrics} /></Card>
+        <Card title="Strength profile" icon={Star} spotlight spotlightColor="rgba(168, 85, 247, 0.16)"><RadarMetrics series={[{ name: "This idea", metrics: r.metrics, color: "var(--primary)" }]} height={250} /></Card>
       </div>
       <div className="grid g2">
-        <Card title="Market research" icon={FileText}><p className="muted pre">{r.marketResearch}</p></Card>
-        <Card title="Feasibility" icon={CheckCircle2}><p className="muted pre">{r.feasibilityNote}</p></Card>
+        <Card title="Market research" icon={FileText} spotlight spotlightColor="rgba(6, 182, 212, 0.16)"><p className="muted pre">{r.marketResearch}</p></Card>
+        <Card title="Feasibility" icon={CheckCircle2} spotlight spotlightColor="rgba(34, 197, 94, 0.16)"><p className="muted pre">{r.feasibilityNote}</p></Card>
       </div>
-      <Card title="SWOT analysis"><Swot swot={r.swot} /></Card>
-      <div className="grid g2">
-        <ListCard title="Target customers" items={r.targetCustomers} /><ListCard title="Key competitors" items={r.competitors} />
-        <ListCard title="Top risks" items={r.risks} tone="var(--danger)" /><ListCard title="Recommendations" items={r.recommendations} tone="var(--success)" />
-      </div>
+      <Card title="SWOT analysis" spotlight spotlightColor="rgba(0, 112, 243, 0.14)"><Swot swot={r.swot} /></Card>
+      <BentoGrid className="report-bento-grid">
+        <ListCard title="Target customers" items={r.targetCustomers} />
+        <ListCard title="Key competitors" items={r.competitors} />
+        <ListCard title="Top risks" items={r.risks} tone="var(--danger)" />
+        <ListCard title="Recommendations" items={r.recommendations} tone="var(--success)" />
+      </BentoGrid>
     </div>
   );
 }
 
-export const Swot = ({ swot = {} }) => (
-  <div className="swot">
-    {[["Strengths", "strengths", "var(--success)"], ["Weaknesses", "weaknesses", "var(--danger)"], ["Opportunities", "opportunities", "var(--info)"], ["Threats", "threats", "var(--warning)"]].map(([t, k, c]) => (
-      <div key={k} style={{ "--c": c }}><h4>{t}</h4><ul>{(swot[k] || []).map((x, i) => <li key={i}>{x}</li>)}</ul></div>))}
-  </div>
-);
+export const Swot = ({ swot = {} }) => {
+  const quadrants = [
+    ["Strengths", "strengths", "var(--success)", "rgba(34, 197, 94, 0.18)"],
+    ["Weaknesses", "weaknesses", "var(--danger)", "rgba(239, 68, 68, 0.18)"],
+    ["Opportunities", "opportunities", "var(--info)", "rgba(6, 182, 212, 0.18)"],
+    ["Threats", "threats", "var(--warning)", "rgba(245, 166, 35, 0.18)"],
+  ];
+  return (
+    <BentoGrid className="swot swot-bento-grid">
+      {quadrants.map(([t, k, c, glow]) => (
+        <SpotlightCard key={k} spotlightColor={glow} style={{ "--c": c }}>
+          <h4>{t}</h4>
+          <ul>{(swot[k] || []).map((x, i) => <li key={i}>{x}</li>)}</ul>
+        </SpotlightCard>
+      ))}
+    </BentoGrid>
+  );
+};
 
-export const ListCard = ({ title, items = [], tone = "var(--primary)" }) => (
-  <Card title={title}><ul className="col" style={{ margin: 0, padding: 0, listStyle: "none", gap: 10 }}>{items.map((x, i) => <li key={i} className="row" style={{ alignItems: "flex-start", gap: 10 }}><i style={{ width: 8, height: 8, borderRadius: 3, background: tone, marginTop: 7, flex: "none" }} /><span>{x}</span></li>)}</ul></Card>
-);
+export const ListCard = ({ title, items = [], tone = "var(--primary)" }) => {
+  const glow = tone === "var(--danger)"
+    ? "rgba(239, 68, 68, 0.18)"
+    : tone === "var(--success)"
+    ? "rgba(34, 197, 94, 0.18)"
+    : "rgba(0, 112, 243, 0.16)";
+  return (
+    <Card title={title} spotlight spotlightColor={glow}>
+      <ul className="col" style={{ margin: 0, padding: 0, listStyle: "none", gap: 10 }}>
+        {items.map((x, i) => (
+          <li key={i} className="row" style={{ alignItems: "flex-start", gap: 10 }}>
+            <i style={{ width: 8, height: 8, borderRadius: 3, background: tone, marginTop: 7, flex: "none" }} />
+            <span>{x}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+};
 
 export function ReviewModal({ idea, onClose }) {
   const [decision, setDecision] = useState("approve");

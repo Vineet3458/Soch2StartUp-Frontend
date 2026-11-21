@@ -27,10 +27,12 @@ export function BentoGridItem({
     >
       {header && <div className="bento-header">{header}</div>}
       <div className="bento-body">
-        <div className="bento-meta">
-          {icon && <div className="bento-icon">{icon}</div>}
-          {badge && <span className="bento-badge">{badge}</span>}
-        </div>
+        {(icon || badge) && (
+          <div className="bento-meta">
+            {icon && <div className="bento-icon">{icon}</div>}
+            {badge && <span className="bento-badge">{badge}</span>}
+          </div>
+        )}
         {title && <h3 className="bento-title">{title}</h3>}
         {description && <p className="bento-desc">{description}</p>}
         {children}

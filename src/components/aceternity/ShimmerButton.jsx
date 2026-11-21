@@ -10,17 +10,37 @@ export const ShimmerButton = forwardRef(function ShimmerButton(
     variant = "shimmer",
     size = "md",
     type = "button",
+    disabled = false,
+    loading = false,
+    onClick,
     ...props
   },
   ref
 ) {
   const isExternal = href || (typeof to === "string" && /^https?:\/\//.test(to));
   const isInternal = to && !isExternal;
-  const classes = `aceternity-btn aceternity-btn-${variant} aceternity-btn-${size} ${className}`;
+  const isDisabled = disabled || loading;
+  const classes = `aceternity-btn aceternity-btn-${variant} aceternity-btn-${size} ${loading ? "loading" : ""} ${className}`;
+
+  const handleClick = (e) => {
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
+    if (onClick) onClick(e);
+  };
 
   if (isInternal) {
     return (
-      <Link ref={ref} to={to} className={classes} {...props}>
+      <Link
+        ref={ref}
+        to={isDisabled ? "#" : to}
+        className={classes}
+        aria-disabled={isDisabled ? true : undefined}
+        onClick={handleClick}
+        tabIndex={isDisabled ? -1 : undefined}
+        {...props}
+      >
         <span className="aceternity-btn-border-spark" aria-hidden="true" />
         <span className="aceternity-btn-inner">{children}</span>
       </Link>
@@ -29,7 +49,15 @@ export const ShimmerButton = forwardRef(function ShimmerButton(
 
   if (isExternal) {
     return (
-      <a ref={ref} href={href || to} className={classes} {...props}>
+      <a
+        ref={ref}
+        href={isDisabled ? "#" : (href || to)}
+        className={classes}
+        aria-disabled={isDisabled ? true : undefined}
+        onClick={handleClick}
+        tabIndex={isDisabled ? -1 : undefined}
+        {...props}
+      >
         <span className="aceternity-btn-border-spark" aria-hidden="true" />
         <span className="aceternity-btn-inner">{children}</span>
       </a>
@@ -37,7 +65,14 @@ export const ShimmerButton = forwardRef(function ShimmerButton(
   }
 
   return (
-    <button ref={ref} type={type} className={classes} {...props}>
+    <button
+      ref={ref}
+      type={type}
+      className={classes}
+      disabled={isDisabled}
+      onClick={handleClick}
+      {...props}
+    >
       <span className="aceternity-btn-border-spark" aria-hidden="true" />
       <span className="aceternity-btn-inner">{children}</span>
     </button>

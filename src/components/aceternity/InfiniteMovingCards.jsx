@@ -35,7 +35,7 @@ export function InfiniteMovingCards({
             </div>
           ))}
         </div>
-        <div className="aceternity-moving-cards-group" aria-hidden="true" inert="">
+        <div className="aceternity-moving-cards-group" aria-hidden="true" inert={true}>
           {displayItems.map((item, idx) => (
             <div key={`track2-${idx}`} className="moving-card-cell">
               {renderItem ? renderItem(item, idx) : item}

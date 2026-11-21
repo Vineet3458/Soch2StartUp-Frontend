@@ -7,6 +7,9 @@ import { act, useLive } from "../lib/live.js";
 import { ago, fmtDate, roleLabel } from "../lib/format.js";
 import { Async, Avatar, Badge, Button, Card, Empty, Field, Modal, PageHeader, SearchBox, StatusBadge, confirmDialog } from "../components/ui.jsx";
 import DataTable from "../components/DataTable.jsx";
+import { ShimmerButton, SpotlightCard } from "../components/aceternity/index.js";
+import { toast } from "../lib/toast.js";
+import { isPasswordValid, isBreachedPassword } from "../pages/Auth.jsx";
 
 const TITLES = { all: ["All users", "Everyone registered on the platform."], pending: ["Pending verification", "Mentors and experts waiting for approval."], roles: ["Role management", "Change what each person can do. Permissions per role are set by the superadmin."], blocked: ["Blocked users", "Accounts that cannot sign in."], mentors: ["Mentors & experts", "Verified advisers, their workload and expertise."] };
 const ROLES = ["entrepreneur", "mentor", "industry_expert", "moderator", "admin", "superadmin"];
@@ -46,13 +49,34 @@ export default function UsersView({ preset }) {
   const count = (f) => list.filter(f).length;
   return (
     <>
-      <PageHeader title={TITLES[preset][0]} subtitle={TITLES[preset][1]}>{manage && <Button icon={Plus} onClick={() => setAdd(true)}>Add user</Button>}</PageHeader>
-      <div className="row wrap mb" style={{ gap: 12 }}>
-        <Badge kind="success">{count((u) => u.status === "active")} active</Badge><Badge kind="warning">{count((u) => u.status === "pending")} pending</Badge><Badge kind="danger">{count((u) => u.status === "blocked")} blocked</Badge><span className="small muted">Total {list.length}</span>
+      <PageHeader title={TITLES[preset][0]} subtitle={TITLES[preset][1]}>
+        {manage && (
+          <ShimmerButton variant="shimmer" size="sm" onClick={() => setAdd(true)}>
+            <Plus size={15} style={{ marginRight: 6 }} /> Add user
+          </ShimmerButton>
+        )}
+      </PageHeader>
+      <div className="grid g4 mb">
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(34, 197, 94, 0.18)">
+          <div><div className="lbl">Active Users</div><div className="val">{count((u) => u.status === "active")}</div></div>
+          <Badge kind="success" dot>Active</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(249, 115, 22, 0.18)">
+          <div><div className="lbl">Pending Approval</div><div className="val">{count((u) => u.status === "pending")}</div></div>
+          <Badge kind="warning">Pending</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(239, 68, 68, 0.18)">
+          <div><div className="lbl">Blocked Accounts</div><div className="val">{count((u) => u.status === "blocked")}</div></div>
+          <Badge kind="danger">Blocked</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(168, 85, 247, 0.18)">
+          <div><div className="lbl">Total Accounts</div><div className="val">{list.length}</div></div>
+          <span className="tiny faint mono">Registered</span>
+        </SpotlightCard>
       </div>
       <div className="toolbar"><SearchBox value={q} onChange={setQ} placeholder="Search by name or email…" />
         <select className="input" value={role} onChange={(e) => setRole(e.target.value)}><option value="">All roles</option>{ROLES.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}</select></div>
-      <Card className="pad0"><Async q={users} skeleton={<div className="skeleton" style={{ height: 320 }} />}>{() => <DataTable rows={rows} columns={cols} pageSize={12} empty={<Empty icon={preset === "mentors" ? GraduationCap : Users} title="No users here">{preset === "pending" ? "No one is waiting for verification 🎉" : "Nothing matches your filters."}</Empty>} />}</Async></Card>
+      <Card className="pad0" spotlight><Async q={users} skeleton={<div className="skeleton" style={{ height: 320 }} />}>{() => <DataTable rows={rows} columns={cols} pageSize={12} empty={<Empty icon={preset === "mentors" ? GraduationCap : Users} title="No users here">{preset === "pending" ? "No one is waiting for verification 🎉" : "Nothing matches your filters."}</Empty>} />}</Async></Card>
       {add && <AddUser onClose={() => setAdd(false)} isSuper={me.role === "superadmin"} />}
     </>
   );
@@ -62,11 +86,28 @@ function AddUser({ onClose, isSuper }) {
   const [f, setF] = useState({ name: "", email: "", password: "", role: "entrepreneur" });
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-  const save = async () => { setBusy(true); const ok = await act(() => api.post("/users", f), "User created"); setBusy(false); if (ok) onClose(); };
+  const save = async () => {
+    if (f.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (!isPasswordValid(f.password)) {
+      toast.error("Password must contain at least one letter and one number");
+      return;
+    }
+    if (isBreachedPassword(f.password)) {
+      toast.error("This password is known to be compromised in data breaches. Please choose a more secure password.");
+      return;
+    }
+    setBusy(true);
+    const ok = await act(() => api.post("/users", f), "User created");
+    setBusy(false);
+    if (ok) onClose();
+  };
   return (
-    <Modal open onClose={onClose} title="Add a user" width={480} footer={<><Button variant="outline" onClick={onClose}>Cancel</Button><Button loading={busy} disabled={!f.name || !f.email || f.password.length < 6} onClick={save}>Create user</Button></>}>
+    <Modal open onClose={onClose} title="Add a user" width={480} footer={<><Button variant="outline" onClick={onClose}>Cancel</Button><ShimmerButton disabled={!f.name || !f.email || f.password.length < 8 || busy} onClick={save}>{busy ? "Creating…" : "Create user"}</ShimmerButton></>}>
       <div className="col"><Field label="Full name"><input className="input" value={f.name} onChange={set("name")} /></Field><Field label="Email"><input className="input" type="email" value={f.email} onChange={set("email")} /></Field>
-        <Field label="Temporary password" hint="At least 6 characters"><input className="input" type="text" value={f.password} onChange={set("password")} /></Field>
+        <Field label="Temporary password" hint="At least 8 characters with letters & numbers"><input className="input" type="text" minLength={8} maxLength={128} value={f.password} onChange={set("password")} /></Field>
         <Field label="Role"><select className="input" value={f.role} onChange={set("role")}>{ROLES.filter((r) => isSuper || !["admin", "superadmin"].includes(r)).map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}</select></Field></div>
     </Modal>
   );

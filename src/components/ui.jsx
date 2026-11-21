@@ -5,18 +5,34 @@ import { initials, statusLabel } from "../lib/format.js";
 import { errMsg } from "../api/client.js";
 import { CountUp } from "./fx.jsx";
 import { useNavigate } from "react-router-dom";
+import { SpotlightCard } from "./aceternity/index.js";
+
+const TONE_SPOTLIGHT = {
+  purple: "rgba(168, 85, 247, 0.16)",
+  cyan: "rgba(6, 182, 212, 0.16)",
+  green: "rgba(34, 197, 94, 0.16)",
+  orange: "rgba(249, 115, 22, 0.16)",
+  pink: "rgba(236, 72, 153, 0.16)",
+};
 
 export function Button({ variant = "primary", size, icon: Icon, loading, children, className = "", ...p }) {
   const cls = ["btn", variant !== "primary" && `btn-${variant}`, size && `btn-${size}`, className].filter(Boolean).join(" ");
   return <button className={cls} disabled={loading || p.disabled} {...p}>{loading ? <Loader2 size={16} className="spin" /> : Icon && <Icon size={size === "sm" ? 15 : 17} />}{children}</button>;
 }
 
-export const Card = ({ children, className = "", hover, title, icon: Icon, sub, ...p }) => (
-  <div className={`card ${hover ? "hover" : ""} ${className}`} {...p}>
-    {title && <div className="card-title">{Icon && <Icon size={18} color="var(--primary)" />}{title}{sub !== undefined && sub !== null && sub !== false && sub !== "" && <span className="sub">{sub}</span>}</div>}
-    {children}
-  </div>
-);
+export const Card = ({ children, className = "", hover, title, icon: Icon, sub, spotlight = false, spotlightColor, ...p }) => {
+  const Comp = spotlight ? SpotlightCard : "div";
+  return (
+    <Comp
+      className={`card ${hover ? "hover" : ""} ${className}`}
+      {...(spotlight ? { spotlightColor } : {})}
+      {...p}
+    >
+      {title && <div className="card-title">{Icon && <Icon size={18} color="var(--primary)" />}{title}{sub !== undefined && sub !== null && sub !== false && sub !== "" && <span className="sub">{sub}</span>}</div>}
+      {children}
+    </Comp>
+  );
+};
 
 export const Badge = ({ kind, children, dot }) => <span className={`badge ${kind || ""}`}>{dot && <i className="dot" />}{children}</span>;
 export const StatusBadge = ({ value, label }) => value ? <Badge kind={value} dot>{label || statusLabel(value) || value}</Badge> : null;
@@ -27,17 +43,23 @@ export function Avatar({ name = "?", size = 38 }) {
   return <span className="avatar" style={{ "--s": `${size}px`, "--h": h }}>{initials(name)}</span>;
 }
 
-export function Stat({ icon: Icon, label, value, sub, subTone, tone = "purple", decimals = 0, suffix = "", to }) {
+export function Stat({ icon: Icon, label, value, sub, subTone, tone = "purple", decimals = 0, suffix = "", to, spotlight = true, spotlightColor }) {
   const nav = useNavigate();
+  const glow = spotlightColor || TONE_SPOTLIGHT[tone] || "rgba(0, 112, 243, 0.16)";
+  const Comp = spotlight ? SpotlightCard : "div";
   return (
-    <div className={`card stat hover g-${tone} ${to ? "link" : ""}`} onClick={to ? () => nav(to) : undefined}>
+    <Comp
+      className={`card stat hover g-${tone} ${to ? "link" : ""}`}
+      {...(spotlight ? { spotlightColor: glow } : {})}
+      onClick={to ? () => nav(to) : undefined}
+    >
       <div className="ico">{Icon && <Icon size={24} />}</div>
       <div className="grow">
         <div className="lbl">{label}</div>
         <div className="val">{typeof value === "number" ? <CountUp value={value} decimals={decimals} suffix={suffix} /> : value}</div>
         {sub && <div className={`sub ${subTone || ""}`}>{sub}</div>}
       </div>
-    </div>
+    </Comp>
   );
 }
 

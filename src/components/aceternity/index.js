@@ -7,3 +7,6 @@ export { Meteors } from "./Meteors.jsx";
 export { ShimmerButton } from "./ShimmerButton.jsx";
 export { GridBackground } from "./GridBackground.jsx";
 export { TimelineSteps } from "./TimelineSteps.jsx";
+export { BackgroundGradient } from "./BackgroundGradient.jsx";
+export { CardHoverEffect } from "./CardHoverEffect.jsx";
+export { MovingBorder } from "./MovingBorder.jsx";

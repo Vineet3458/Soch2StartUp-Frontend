@@ -55,7 +55,7 @@ From the `soch2startup-frontend` directory:
 | **Development** | `npm run dev` | Starts Vite dev server at `http://localhost:5173` (with HMR) |
 | **Production Build** | `npm run build` | Compiles optimized production bundle in `dist/` |
 | **Preview Build** | `npm run preview` | Locally serves and previews the production build |
-| **Automated Tests** | `npm test` | Runs the 16 automated frontend unit & routing tests |
+| **Automated Tests** | `npm test` | Runs the 42 automated frontend unit, routing & component tests |
 | **Linting** | `npm run lint` | Runs ESLint verification (0 errors, 0 warnings) |
 
 ---

@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, Lightbulb, Pencil, Plus, Scale, Trash2, UserPlus, Gavel } from "lucide-react";
 import api from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
 import { act, useLive } from "../lib/live.js";
 import { fmtDate } from "../lib/format.js";
-import { Async, Badge, Button, Empty, PageHeader, SearchBox, SkeletonGrid, StatusBadge, Tabs, VerdictBadge, confirmDialog } from "../components/ui.jsx";
+import { Async, Badge, Button, Card, Empty, PageHeader, SearchBox, SkeletonGrid, StatusBadge, Tabs, VerdictBadge, confirmDialog } from "../components/ui.jsx";
 import DataTable from "../components/DataTable.jsx";
 import { AssignModal, IdeaCard, ReviewModal } from "../components/idea.jsx";
+import { FlipWords, ShimmerButton, SpotlightCard } from "../components/aceternity/index.js";
 
 const FOUNDER_TABS = { all: null, drafts: ["draft"], submitted: ["submitted", "under_review"], validated: ["approved"], changes: ["changes_requested"] };
 const ADMIN_TABS = { all: null, review: ["submitted", "under_review"], approved: ["approved"], rejected: ["rejected"], changes: ["changes_requested"], archived: ["archived"] };
@@ -34,17 +35,54 @@ function FounderIdeas() {
 
   return (
     <>
-      <PageHeader title="My Ideas" subtitle="Everything you have submitted, drafted and validated — updated live as admins, mentors and experts respond.">
+      <PageHeader
+        title="My Ideas"
+        subtitle={
+          <>
+            Everything you have submitted, drafted and validated &bull;{" "}
+            <FlipWords
+              words={[
+                "AI validation reports",
+                "real-time review status",
+                "expert mentor feedback",
+                "head-to-head comparison",
+              ]}
+              duration={2800}
+            />
+          </>
+        }
+      >
         {picked.length === 2 && cfg.feature("compareIdeas") && <Button variant="outline" icon={Scale} onClick={() => nav(`/app/compare?a=${picked[0]}&b=${picked[1]}`)}>Compare selected</Button>}
-        <Button icon={Plus} onClick={() => nav("/app/validate")}>New idea</Button>
+        <ShimmerButton variant="shimmer" size="sm" onClick={() => nav("/app/validate")}><Plus size={15} style={{ marginRight: 6 }} /> New idea</ShimmerButton>
       </PageHeader>
+      <div className="grid g4 mb">
+        <SpotlightCard className="founder-stat-mini card" spotlightColor="rgba(168, 85, 247, 0.18)">
+          <div><div className="lbl">Total Ideas</div><div className="val">{list.length}</div></div>
+          <Badge kind="primary">Portfolio</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="founder-stat-mini card" spotlightColor="rgba(34, 197, 94, 0.18)">
+          <div><div className="lbl">Validated & Approved</div><div className="val">{count("validated")}</div></div>
+          <Badge kind="success">Approved</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="founder-stat-mini card" spotlightColor="rgba(245, 166, 35, 0.18)">
+          <div><div className="lbl">Awaiting Review</div><div className="val">{count("submitted")}</div></div>
+          <Badge kind="warning">Pending</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="founder-stat-mini card" spotlightColor="rgba(6, 182, 212, 0.18)">
+          <div><div className="lbl">Drafts & Edits</div><div className="val">{count("drafts") + count("changes")}</div></div>
+          <span className="tiny faint mono">WIP</span>
+        </SpotlightCard>
+      </div>
       <div className="toolbar">
         <SearchBox value={q} onChange={setQ} placeholder="Search your ideas…" />
         <Tabs value={tab} onChange={(t) => setSp(t === "all" ? {} : { f: t })} tabs={[["all", "All"], ["drafts", "Drafts"], ["submitted", "Submitted"], ["validated", "Validated"], ["changes", "Needs changes"]].map(([id, label]) => ({ id, label, count: count(id) }))} />
       </div>
       <Async q={ideas} skeleton={<SkeletonGrid n={3} h={260} cols="g3" />}>
         {() => !filtered.length ? (
-          <Empty icon={Lightbulb} title={list.length ? "No ideas match" : "No ideas yet"}>{list.length ? "Try a different filter." : "Validate your first startup idea to see it here."}<div className="mt"><Link to="/app/validate" className="btn">Validate an idea</Link></div></Empty>
+          <Empty icon={Lightbulb} title={list.length ? "No ideas match" : "No ideas yet"}>
+            {list.length ? "Try a different filter." : "Validate your first startup idea to see it here."}
+            <div className="mt"><ShimmerButton size="md" variant="shimmer" onClick={() => nav("/app/validate")}><Plus size={15} style={{ marginRight: 6 }} /> Validate an idea</ShimmerButton></div>
+          </Empty>
         ) : (
           <div className="grid g-auto stagger">
             {filtered.map((i) => (
@@ -80,12 +118,30 @@ function AdminIdeas() {
   return (
     <>
       <PageHeader title="Startup Ideas" subtitle="Review, assign and manage every submitted idea. Decisions notify founders instantly." />
+      <div className="grid g4 mb">
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(249, 115, 22, 0.18)">
+          <div><div className="lbl">Awaiting Review</div><div className="val">{count("review")}</div></div>
+          <Badge kind="warning">Pending</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(34, 197, 94, 0.18)">
+          <div><div className="lbl">Approved</div><div className="val">{count("approved")}</div></div>
+          <Badge kind="success">Approved</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(234, 179, 8, 0.18)">
+          <div><div className="lbl">Needs Changes</div><div className="val">{count("changes")}</div></div>
+          <Badge kind="warning">Changes</Badge>
+        </SpotlightCard>
+        <SpotlightCard className="admin-stat-mini card" spotlightColor="rgba(168, 85, 247, 0.18)">
+          <div><div className="lbl">Total Submissions</div><div className="val">{list.length}</div></div>
+          <span className="tiny faint mono">Ideas</span>
+        </SpotlightCard>
+      </div>
       <div className="toolbar">
         <SearchBox value={q} onChange={setQ} placeholder="Search by title, founder or industry…" />
         <select className="input" value={industry} onChange={(e) => setIndustry(e.target.value)}><option value="">All industries</option>{industries.map((x) => <option key={x}>{x}</option>)}</select>
       </div>
       <div className="mb"><Tabs value={tab} onChange={(t) => setSp(t === "all" ? {} : { s: t })} tabs={[["all", "All"], ["review", "Pending review"], ["approved", "Approved"], ["changes", "Changes requested"], ["rejected", "Rejected"], ["archived", "Archived"]].map(([id, label]) => ({ id, label, count: count(id) }))} /></div>
-      <div className="card pad0">
+      <Card className="pad0" spotlight>
         <Async q={ideas} skeleton={<div className="skeleton" style={{ height: 300 }} />}>
           {() => <DataTable rows={rows} empty={<Empty icon={Lightbulb} title="No ideas in this view" />} onRowClick={(i) => nav(`/app/ideas/${i._id}`)} columns={[
             { key: "title", label: "Idea", render: (i) => <div><b>{i.title}</b><div className="tiny faint">{i.industry} · {fmtDate(i.createdAt)}</div></div> },
@@ -102,7 +158,7 @@ function AdminIdeas() {
               </div>) },
           ]} />}
         </Async>
-      </div>
+      </Card>
       {review && <ReviewModal idea={review} onClose={() => setReview(null)} />}
       {assign && <AssignModal idea={assign} onClose={() => setAssign(null)} />}
     </>

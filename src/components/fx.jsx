@@ -11,15 +11,28 @@ export function CountUp({ value, duration = 1100, decimals = 0, prefix = "", suf
   const from = useRef(0);
   useEffect(() => {
     const to = Number(value) || 0, start = from.current, t0 = performance.now();
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setN(to); from.current = to; return; }
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+      setN(to);
+      from.current = to;
+      return;
+    }
     let raf;
+    let currentVal = start;
     const tick = (t) => {
       const p = Math.min(1, (t - t0) / duration), e = 1 - Math.pow(1 - p, 4);
-      setN(start + (to - start) * e);
-      if (p < 1) raf = requestAnimationFrame(tick); else from.current = to;
+      currentVal = start + (to - start) * e;
+      setN(currentVal);
+      if (p < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        from.current = to;
+      }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      from.current = currentVal;
+    };
   }, [value, duration]);
   return <>{prefix}{n.toLocaleString("en-IN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</>;
 }

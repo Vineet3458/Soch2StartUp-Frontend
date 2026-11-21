@@ -9,6 +9,7 @@ import { ago, fmtDate, roleLabel } from "../lib/format.js";
 import { Alert, Async, Avatar, Badge, Button, Card, Empty, Field, PageHeader, StatusBadge, Tabs, Toggle } from "../components/ui.jsx";
 import { toast } from "../lib/toast.js";
 import { errMsg } from "../api/client.js";
+import { isPasswordValid, isBreachedPassword } from "../pages/Auth.jsx";
 
 export default function AccountViews({ page }) {
   return page === "notifications" ? <Notifications /> : page === "profile" ? <Profile /> : <Settings />;
@@ -76,7 +77,29 @@ function Settings() {
   const [pw, setPw] = useState({ currentPassword: "", newPassword: "" });
   const [busy, setBusy] = useState(false);
   const setPref = async (patch) => { try { const r = await api.patch("/auth/me", { prefs: patch }); updateUser(r.data.user); } catch (e) { toast.error(errMsg(e)); } };
-  const change = async () => { setBusy(true); try { await api.patch("/auth/password", pw); toast.success("Password updated"); setPw({ currentPassword: "", newPassword: "" }); } catch (e) { toast.error(errMsg(e)); } setBusy(false); };
+  const change = async () => {
+    if (pw.newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (!isPasswordValid(pw.newPassword)) {
+      toast.error("Password must contain at least one letter and one number");
+      return;
+    }
+    if (isBreachedPassword(pw.newPassword)) {
+      toast.error("This password is known to be compromised in data breaches. Please choose a more secure password.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await api.patch("/auth/password", pw);
+      toast.success("Password updated");
+      setPw({ currentPassword: "", newPassword: "" });
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+    setBusy(false);
+  };
   return (
     <>
       <PageHeader title="Account settings" subtitle="Appearance, notifications and security." />
@@ -89,8 +112,8 @@ function Settings() {
         </Card>
         <Card title="Change password" icon={KeyRound}><div className="col">
           <Field label="Current password"><input type="password" className="input" value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} autoComplete="current-password" /></Field>
-          <Field label="New password" hint="At least 6 characters"><input type="password" className="input" value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" /></Field>
-          <div><Button loading={busy} disabled={!pw.currentPassword || pw.newPassword.length < 6} onClick={change}>Update password</Button></div></div></Card>
+          <Field label="New password" hint="At least 8 characters with letters & numbers"><input type="password" className="input" minLength={8} maxLength={128} value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" /></Field>
+          <div><Button loading={busy} disabled={!pw.currentPassword || pw.newPassword.length < 8} onClick={change}>Update password</Button></div></div></Card>
       </div>
     </>
   );

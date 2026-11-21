@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-export function Meteors({ number = 18, className = "" }) {
+export function Meteors({ number = 18, color, className = "" }) {
   const meteors = useMemo(() => {
     return Array.from({ length: number }, (_, i) => {
       // Deterministic, evenly-scattered distribution across the container
@@ -13,7 +13,11 @@ export function Meteors({ number = 18, className = "" }) {
   }, [number]);
 
   return (
-    <div className={`aceternity-meteors-wrapper ${className}`} aria-hidden="true">
+    <div
+      className={`aceternity-meteors-wrapper ${className}`}
+      style={color ? { "--meteor-color": color } : undefined}
+      aria-hidden="true"
+    >
       {meteors.map((m) => (
         <span
           key={m.id}

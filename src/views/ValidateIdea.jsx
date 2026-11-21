@@ -6,10 +6,18 @@ import { useConfig } from "../context/ConfigContext.jsx";
 import { invalidate, useLive } from "../lib/live.js";
 import { toast } from "../lib/toast.js";
 import { Alert, Badge, Button, Card, Field, PageHeader } from "../components/ui.jsx";
+import { Spotlight, SpotlightCard, ShimmerButton, FlipWords, Meteors, GridBackground, TimelineSteps } from "../components/aceternity/index.js";
 
 const BUDGETS = ["Under ₹1 lakh", "₹1–10 lakh", "Above ₹10 lakh"];
 const TEAMS = ["Solo founder", "2–3 members", "4+ members"];
 const STEPS = ["Reading your idea", "Fetching live market signals", "Sizing the market & competitors", "Combining model predictions", "Scoring feasibility & finances", "Writing your report"];
+
+const VALIDATION_PHASES = [
+  { title: "Define Core Concept", desc: "Detail customer segment, pain point & revenue model.", tag: "Phase 1" },
+  { title: "Live Web Signals", desc: "Scan real-time competitors, search trends & industry benchmarks.", tag: "Phase 2" },
+  { title: "AI Council Consensus", desc: "Multi-model ensemble scores feasibility, moat & risk.", tag: "Phase 3" },
+  { title: "Report & Roadmap", desc: "Receive investor-ready SWOT, GO/IMPROVE verdict & milestones.", tag: "Phase 4" },
+];
 
 export default function ValidateIdea() {
   const nav = useNavigate();
@@ -62,21 +70,57 @@ export default function ValidateIdea() {
   };
 
   if (busy === "submit") return (
-    <div className="center" style={{ padding: "70px 0" }}>
-      <div className="ai-orb" style={{ margin: "0 auto 36px" }} />
-      <h2>Analysing {form.title || "your idea"}</h2>
-      <p className="muted" style={{ margin: "8px 0 26px" }}>Our engine is evaluating demand, competition, feasibility, finances and risk.</p>
-      <ul className="step-list col" style={{ listStyle: "none", padding: 0, maxWidth: 360, margin: "0 auto", textAlign: "left", gap: 10 }}>
-        {STEPS.map((s, i) => <li key={s} className={i <= step ? "on" : ""}><span className="row" style={{ gap: 10 }}>{i < step ? <CheckCircle2 size={18} color="var(--success)" /> : i === step ? <Loader2 size={18} className="spin" color="var(--primary)" /> : <i style={{ width: 18 }} />}{s}</span></li>)}
-      </ul>
-    </div>
+    <GridBackground variant="dots" mask="radial" className="validation-loading-wrapper">
+      <div className="center validation-loading-content" style={{ padding: "80px 24px", position: "relative" }}>
+        <Spotlight className="validation-spotlight" fill="var(--primary)" />
+        <Meteors number={14} />
+        <div className="ai-orb" style={{ margin: "0 auto 36px" }} />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span className="live-pulse-badge">
+            <i className="live-pulse-dot" />
+            AI MULTI-MODEL COUNCIL RUNNING
+          </span>
+        </div>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 8px" }}>Analysing {form.title || "your idea"}</h2>
+        <p className="muted" style={{ margin: "0 auto 28px", maxWidth: 500 }}>Our engine is evaluating demand, competition, feasibility, finances and risk.</p>
+        <ul className="step-list col" style={{ listStyle: "none", padding: 0, maxWidth: 380, margin: "0 auto", textAlign: "left", gap: 12 }}>
+          {STEPS.map((s, i) => (
+            <li key={s} className={i <= step ? "on" : ""}>
+              <span className="row" style={{ gap: 12, alignItems: "center" }}>
+                {i < step ? <CheckCircle2 size={18} color="var(--success)" /> : i === step ? <Loader2 size={18} className="spin" color="var(--primary)" /> : <i style={{ width: 18, height: 18, borderRadius: "50%", border: "1px dashed var(--muted)", display: "inline-block" }} />}
+                <span style={{ fontWeight: i === step ? 600 : 400, color: i === step ? "var(--text)" : undefined }}>{s}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </GridBackground>
   );
 
   return (
     <>
-      <PageHeader title={editId ? "Edit idea" : "Validate a new idea"} subtitle="Tell us about your startup. The more specific you are about the problem, customer and revenue, the sharper the analysis." />
+      <PageHeader
+        title={editId ? "Edit & Re-validate Idea" : "Validate a New Idea"}
+        subtitle={
+          <>
+            Input your startup details to trigger{" "}
+            <FlipWords
+              words={[
+                "live web market signals",
+                "multi-model AI consensus scoring",
+                "comprehensive SWOT analysis",
+                "feasibility & financial stress-testing",
+              ]}
+              duration={2600}
+            />
+          </>
+        }
+      />
+      <div className="founder-roadmap-preview mb-l">
+        <TimelineSteps steps={VALIDATION_PHASES} className="steps-4" />
+      </div>
       <div className="grid g-main">
-        <Card className="glow-border">
+        <SpotlightCard className="card glow-border" spotlightColor="rgba(0, 112, 243, 0.16)">
           {error && <div className="mb"><Alert kind="error">{error}</Alert></div>}
           {!aiOn && <div className="mb"><Alert kind="warning">AI validation is currently switched off by the administrator. You can still save drafts.</Alert></div>}
           <div className="col" style={{ gap: 18 }}>
@@ -88,13 +132,16 @@ export default function ValidateIdea() {
               <Field label="Team size"><select className="input" value={form.teamSize} onChange={set("teamSize")}>{TEAMS.map((b) => <option key={b}>{b}</option>)}</select></Field>
             </div>
             <div className="row wrap" style={{ gap: 12 }}>
-              <Button icon={Sparkles} size="lg" disabled={!aiOn} onClick={() => save(false)}>{editId ? "Save & re-validate" : "Validate with AI"}</Button>
+              <ShimmerButton variant="shimmer" size="lg" disabled={!aiOn} onClick={() => save(false)}>
+                <Sparkles size={16} style={{ marginRight: 6 }} />
+                {editId ? "Save & re-validate" : "Validate with AI"}
+              </ShimmerButton>
               <Button variant="outline" size="lg" icon={Save} loading={busy === "draft"} onClick={() => save(true)}>Save as draft</Button>
             </div>
           </div>
-        </Card>
+        </SpotlightCard>
         <div className="col">
-          <Card title="Live market signals" icon={Globe} sub="What the AI council will see">
+          <Card title="Live market signals" icon={Globe} sub="What the AI council will see" spotlight spotlightColor="rgba(6, 182, 212, 0.18)">
             <p className="small muted">Scan current web results and official sites for your idea before you submit.</p>
             <Button variant="outline" size="sm" icon={Globe} className="mt-s" loading={liveBusy} disabled={form.title.trim().length < 3} onClick={fetchLive}>Fetch live signals</Button>
             {live && <div className="mt-s">
@@ -106,7 +153,7 @@ export default function ValidateIdea() {
               {live.errors?.length > 0 && <div className="tiny faint mt-s">{live.errors.join(" · ")}</div>}
             </div>}
           </Card>
-          <Card title="Tips for a high score" icon={Sparkles}>
+          <Card title="Tips for a high score" icon={Sparkles} spotlight spotlightColor="rgba(168, 85, 247, 0.16)">
             <ul className="col muted small" style={{ paddingLeft: 18, margin: 0, gap: 10 }}>
               <li>Name a specific customer segment, not “everyone”.</li>
               <li>State how you will earn money (subscription, commission, licensing…).</li>
@@ -114,7 +161,7 @@ export default function ValidateIdea() {
               <li>Mention a narrow starting niche or region.</li>
             </ul>
           </Card>
-          <Card className="callout"><b>Live scoring</b><p className="small muted" style={{ marginTop: 6 }}>Weights and verdict thresholds are set by the platform admin (currently GO ≥ {cfg.scoring?.thresholds?.go}, IMPROVE ≥ {cfg.scoring?.thresholds?.improve}). If they change, your report updates too.</p></Card>
+          <Card className="callout" spotlight spotlightColor="rgba(245, 166, 35, 0.16)"><b>Live scoring</b><p className="small muted" style={{ marginTop: 6 }}>Weights and verdict thresholds are set by the platform admin (currently GO ≥ {cfg.scoring?.thresholds?.go}, IMPROVE ≥ {cfg.scoring?.thresholds?.improve}). If they change, your report updates too.</p></Card>
         </div>
       </div>
     </>

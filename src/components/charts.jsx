@@ -18,7 +18,7 @@ export function ScoreRing({ score = 0, size = 150, stroke = 12, label = "SCORE",
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-2)" strokeWidth={stroke} />
         <circle className="ring-fg" cx={size / 2} cy={size / 2} r={r} fill="none" stroke={col} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * p) / 100} />
       </svg>
-      <div className="num" style={{ fontSize: size * 0.3, color: col }}><CountUp value={score} />{label && <small>{label}</small>}</div>
+      <div className="num" style={{ fontSize: size * 0.3, color: col }}><CountUp value={score} duration={550} />{label && <small>{label}</small>}</div>
     </div>
   );
 }
@@ -74,7 +74,7 @@ export function Bars({ data, x = "name", bars, height = 260, layout = "horizonta
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} layout={layout} margin={{ left: vertical ? 20 : -18, right: 8, top: 8 }}>
         <CartesianGrid stroke="var(--chart-grid)" horizontal={!vertical} vertical={vertical} />
-        {vertical ? <><XAxis type="number" {...axis} domain={[0, max || "auto"]} /><YAxis type="category" dataKey={x} {...axis} width={90} /></> : <><XAxis dataKey={x} {...axis} /><YAxis {...axis} domain={[0, max || "auto"]} allowDecimals={false} /></>}
+        {vertical ? <><XAxis type="number" {...axis} domain={[(dataMin) => Math.min(0, dataMin), max || "auto"]} /><YAxis type="category" dataKey={x} {...axis} width={90} /></> : <><XAxis dataKey={x} {...axis} /><YAxis {...axis} domain={[(dataMin) => Math.min(0, dataMin), max || "auto"]} allowDecimals={false} /></>}
         <Tooltip {...tip} />
         {bars.map((b, i) => <Bar key={b.key} dataKey={b.key} name={b.name} fill={b.color || PALETTE[i]} radius={vertical ? [0, 8, 8, 0] : [8, 8, 0, 0]} animationDuration={1000} />)}
       </BarChart>

@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+npm-debug.log*
+.env
+.env.*
+!.env.example
+.git
+.github
+.vscode
+coverage
+*.log
+test-*.mjs
+vercel.json
