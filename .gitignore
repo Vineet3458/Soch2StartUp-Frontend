@@ -36,4 +36,6 @@ coverage/
 # OS artifacts
 .DS_Store
 Thumbs.db
-config.bat
+.env
+.env.local
+.vscode/
