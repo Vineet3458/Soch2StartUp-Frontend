@@ -25,7 +25,6 @@ function Sidebar({ open, onClose }) {
   const cfg = useConfig();
   const loc = useLocation();
   const nav = navFor(user.role);
-  const badges = useLive("/stats/badges").data || {};
   const [expanded, setExpanded] = useState({});
   const visible = (i) => (!i.feature || cfg.feature(i.feature)) && (!i.perm || cfg.can(i.perm));
   const CardIcon = nav.card.icon;
@@ -47,16 +46,15 @@ function Sidebar({ open, onClose }) {
                 <div className="nav-title">{s.title}</div>
                 {items.map((it) => {
                   const Icon = it.icon;
-                  const count = it.badge ? badges[it.badge] : 0;
                   if (!it.children) return (
-                    <Link key={it.label} to={it.to} className={`nav-item ${matches(it.to, loc) ? "active" : ""}`} onClick={onClose}><Icon size={19} />{it.label}{count > 0 && <span className="nb">{count}</span>}</Link>
+                    <Link key={it.label} to={it.to} className={`nav-item ${matches(it.to, loc) ? "active" : ""}`} onClick={onClose}><Icon size={19} />{it.label}</Link>
                   );
                   const childActive = it.children.some((c) => matches(c.to, loc));
                   const isOpen = expanded[it.label] ?? childActive;
                   return (
                     <div key={it.label}>
                       <button className={`nav-item ${isOpen ? "open" : ""} ${childActive ? "active" : ""}`} onClick={() => setExpanded((e) => ({ ...e, [it.label]: !isOpen }))} aria-expanded={isOpen}>
-                        <Icon size={19} />{it.label}{count > 0 && <span className="nb" style={{ marginLeft: "auto" }}>{count}</span>}<ChevronRight size={16} className="chev" style={count > 0 ? { marginLeft: 8 } : undefined} />
+                        <Icon size={19} />{it.label}<ChevronRight size={16} className="chev" />
                       </button>
                       <div className={`nav-sub ${isOpen ? "open" : ""}`}><div>
                         {it.children.map((c) => <Link key={c.label} to={c.to} className={`nav-item ${matches(c.to, loc) ? "active" : ""}`} onClick={onClose}>{c.label}</Link>)}
