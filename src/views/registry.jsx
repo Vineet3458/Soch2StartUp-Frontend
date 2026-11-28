@@ -76,14 +76,14 @@ export const ROUTES = [
 ];
 export const Overview = V.Overview;
 
-/* ── Navigation per role ── item: { label, icon, to, badge?, feature?, perm?, children?: [{label,to}] } ── */
+/* ── Navigation per role ── item: { label, icon, to, feature?, perm?, children?: [{label,to}] } ── */
 const NAV = {
   entrepreneur: {
     card: { title: "Entrepreneur", sub: "Startup Founder", icon: Rocket },
     sections: [
       { title: "STARTUP MANAGEMENT", items: [
         { label: "Overview", icon: LayoutDashboard, to: "/app" },
-        { label: "My Ideas", icon: Lightbulb, to: "/app/ideas", badge: "changes", children: [
+        { label: "My Ideas", icon: Lightbulb, to: "/app/ideas", children: [
           { label: "All Ideas", to: "/app/ideas" }, { label: "Drafts", to: "/app/ideas?f=drafts" }, { label: "Submitted", to: "/app/ideas?f=submitted" }, { label: "Validated", to: "/app/ideas?f=validated" }] },
         { label: "Validate New Idea", icon: Sparkles, to: "/app/validate" },
         { label: "Validation Reports", icon: FileBarChart, to: "/app/reports" },
@@ -102,19 +102,19 @@ const NAV = {
     sections: [
       { title: "INSIGHTS", items: [{ label: "Analytics & Insights", icon: BarChart3, to: "/app", perm: "analytics.view" }] },
       { title: "USER & ACCESS", items: [
-        { label: "Users Management", icon: Users, to: "/app/users", perm: "users.view", badge: "pending", children: [
+        { label: "Users Management", icon: Users, to: "/app/users", perm: "users.view", children: [
           { label: "All Users", to: "/app/users" }, { label: "Pending Verification", to: "/app/pending" }, { label: "Role Management", to: "/app/roles" }, { label: "Blocked Users", to: "/app/blocked" }] } ] },
       { title: "STARTUP MANAGEMENT", items: [
-        { label: "Startup Ideas", icon: Lightbulb, to: "/app/ideas", badge: "review", children: [
+        { label: "Startup Ideas", icon: Lightbulb, to: "/app/ideas", children: [
           { label: "All Ideas", to: "/app/ideas" }, { label: "Pending Review", to: "/app/ideas?s=review" }, { label: "Approved Ideas", to: "/app/ideas?s=approved" }, { label: "Rejected Ideas", to: "/app/ideas?s=rejected" }] },
         { label: "Validation Reports", icon: FileBarChart, to: "/app/reports" },
         { label: "Mentors & Experts", icon: GraduationCap, to: "/app/mentors", perm: "users.view" } ] },
       { title: "OPERATIONS", items: [
-        { label: "Requests & Approvals", icon: Inbox, to: "/app/requests", badge: "requests" },
+        { label: "Requests & Approvals", icon: Inbox, to: "/app/requests" },
         { label: "Mentor Sessions", icon: Calendar, to: "/app/sessions", feature: "sessions" },
         { label: "Content Management", icon: FileText, to: "/app/resources?kind=guideline", perm: "resources.manage", feature: "resourceHub", children: [
           { label: "Guidelines & Rules", to: "/app/resources?kind=guideline" }, { label: "Announcements", to: "/app/resources?kind=announcement" }, { label: "Templates & Playbooks", to: "/app/resources?kind=template" }] },
-        { label: "Moderation Queue", icon: ShieldAlert, to: "/app/mod-ideas", badge: "reports", perm: "reports.moderate", feature: "moderation" },
+        { label: "Moderation Queue", icon: ShieldAlert, to: "/app/mod-ideas", perm: "reports.moderate", feature: "moderation" },
         { label: "Audit & Activity", icon: History, to: "/app/audit", perm: "logs.view" } ] },
     ] },
   superadmin: {
@@ -129,12 +129,12 @@ const NAV = {
       { title: "PLATFORM SERVICES", items: [
         { label: "Integrations", icon: Plug, to: "/app/integrations" }, { label: "Analytics & Reports", icon: LineChart, to: "/app/analytics" }] },
       { title: "ADMINISTRATION", items: [
-        { label: "Users Management", icon: Users, to: "/app/users", badge: "pending", children: [
+        { label: "Users Management", icon: Users, to: "/app/users", children: [
           { label: "All Users", to: "/app/users" }, { label: "Pending Verification", to: "/app/pending" }, { label: "Role Management", to: "/app/roles" }, { label: "Blocked Users", to: "/app/blocked" }] },
-        { label: "Startup Ideas", icon: Lightbulb, to: "/app/ideas", badge: "review", children: [
+        { label: "Startup Ideas", icon: Lightbulb, to: "/app/ideas", children: [
           { label: "All Ideas", to: "/app/ideas" }, { label: "Pending Review", to: "/app/ideas?s=review" }, { label: "Approved", to: "/app/ideas?s=approved" }, { label: "Rejected", to: "/app/ideas?s=rejected" }] },
-        { label: "Mentors & Experts", icon: GraduationCap, to: "/app/mentors" }, { label: "Requests & Approvals", icon: Inbox, to: "/app/requests", badge: "requests" },
-        { label: "Moderation Queue", icon: ShieldAlert, to: "/app/mod-ideas", badge: "reports", feature: "moderation" },
+        { label: "Mentors & Experts", icon: GraduationCap, to: "/app/mentors" }, { label: "Requests & Approvals", icon: Inbox, to: "/app/requests" },
+        { label: "Moderation Queue", icon: ShieldAlert, to: "/app/mod-ideas", feature: "moderation" },
         { label: "Content Management", icon: FileText, to: "/app/resources?kind=guideline", feature: "resourceHub", children: [
           { label: "Guidelines & Rules", to: "/app/resources?kind=guideline" }, { label: "Announcements", to: "/app/resources?kind=announcement" }, { label: "Templates & Playbooks", to: "/app/resources?kind=template" }] }] },
     ] },
@@ -143,7 +143,7 @@ const NAV = {
     sections: [
       { title: "ADVISORY & STARTUPS", items: [
         { label: "Overview", icon: LayoutDashboard, to: "/app" },
-        { label: "Assigned Startups", icon: Lightbulb, to: "/app/assignments", badge: "assignments", children: [
+        { label: "Assigned Startups", icon: Lightbulb, to: "/app/assignments", children: [
           { label: "My Assignments", to: "/app/assignments" }, { label: "In Progress", to: "/app/assignments?f=progress" }, { label: "Completed", to: "/app/assignments?f=completed" }, { label: "Archived", to: "/app/assignments?f=archived" }] },
         { label: "Mentor Sessions", icon: Calendar, to: "/app/sessions", feature: "sessions" }] },
       { title: "GUIDANCE & FEEDBACK", items: [
@@ -155,11 +155,11 @@ const NAV = {
     sections: [
       { title: "EVALUATION QUEUE", items: [
         { label: "Overview", icon: LayoutDashboard, to: "/app" },
-        { label: "Evaluation Tasks", icon: ClipboardCheck, to: "/app/evaluations", badge: "evaluations", feature: "evaluations", children: [
+        { label: "Evaluation Tasks", icon: ClipboardCheck, to: "/app/evaluations", feature: "evaluations", children: [
           { label: "Assigned Evaluations", to: "/app/evaluations" }, { label: "Pending Reviews", to: "/app/evaluations?f=pending" }, { label: "Completed Reviews", to: "/app/evaluations?f=completed" }, { label: "Re-Evaluations", to: "/app/evaluations?f=re" }] },
         { label: "Idea Evaluation", icon: Star, to: "/app/evaluate", feature: "evaluations" }] },
       { title: "SCORING & CALIBRATION", items: [
-        { label: "Scorecards", icon: Gauge, to: "/app/scorecards" }, { label: "Calibration & Disputes", icon: Scale, to: "/app/disputes", badge: "disputes" },
+        { label: "Scorecards", icon: Gauge, to: "/app/scorecards" }, { label: "Calibration & Disputes", icon: Scale, to: "/app/disputes" },
         { label: "Evaluation Reports", icon: FileBarChart, to: "/app/eval-reports" }, { label: "Quality Insights", icon: LineChart, to: "/app/quality" },
         { label: "Rubrics & Playbooks", icon: Library, to: "/app/resources?kind=playbook", feature: "resourceHub" }] },
     ] },
@@ -168,7 +168,7 @@ const NAV = {
     sections: [
       { title: "MODERATION QUEUE", items: [
         { label: "Overview", icon: LayoutDashboard, to: "/app" },
-        { label: "Moderation Queue", icon: ShieldAlert, to: "/app/mod-ideas", badge: "reports", feature: "moderation", perm: "reports.moderate", children: [
+        { label: "Moderation Queue", icon: ShieldAlert, to: "/app/mod-ideas", feature: "moderation", perm: "reports.moderate", children: [
           { label: "Flagged Ideas", to: "/app/mod-ideas" }, { label: "Reported Feedback", to: "/app/mod-feedback" }, { label: "User Reports", to: "/app/mod-users" }] }] },
       { title: "STANDARDS & COMPLIANCE", items: [
         { label: "Community Guidelines", icon: BookOpen, to: "/app/resources?kind=guideline", feature: "resourceHub" },
